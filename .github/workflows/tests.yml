@@ -16,9 +16,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         miniforge-variant: Mambaforge
+        architecture: x64
         channel-priority: strict
         environment-file: .ci_support/environment.yml
         python-version: ${{ matrix.python-version }}
