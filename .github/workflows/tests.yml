@@ -1,0 +1,30 @@
+name: testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        miniforge-version: latest
+        activate-environment: damask-test
+        channel-priority: strict
+        environment-file: .ci_support/environment.yml
+        python-version: ${{ matrix.python-version }}
+
+    - name: run tests
+      shell: bash -l {0}
+      run: |
+        python -m unittest discover tests/
