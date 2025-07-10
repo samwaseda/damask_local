@@ -119,7 +119,6 @@ parameters:
     shape: scalar
     units: dimensionless
 
-    parameters:
   - name: rho_u_ed_pos_0
     description: Initial positive edge unipolar dislocation density
     type: float
@@ -240,7 +239,6 @@ parameters:
     shape: scalar
     units: J/m^2
 
-    parameters:
   - name: chi_GB
     description: Transformation resistance at grain boundaries
     type: float
@@ -480,3 +478,172 @@ parameters:
     type: float
     shape: scalar
     units: m^-2
+
+  - name: f_ed
+    description: Fraction of edge dislocations in dislocation population
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: a_sl
+    description: Dislocation annihilation distance scaling for slip systems
+    type: float
+    shape: scalar
+    units: m
+
+  - name: omega
+    description: Energy barrier scaling factor for twinning or transformation
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: Q_sol
+    description: Activation energy for solute diffusion
+    type: float
+    shape: scalar
+    units: J/mol
+
+  - name: rho_u_ed_neg_0
+    description: Initial negative edge unipolar dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: N_sl
+    description: Number of slip systems
+    type: int
+    shape: scalar
+    units: count
+
+  - name: h_tr-tr
+    description: Transformation–transformation hardening interaction term
+    type: matrix
+    shape: N_tr × N_tr
+    units: dimensionless
+
+  - name: rho_d_ed_0
+    description: Initial edge dipole dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: N_tr
+    description: Number of transformation systems
+    type: int
+    shape: scalar
+    units: count
+
+  - name: h_sl-sl
+    description: Slip–slip hardening matrix
+    type: matrix
+    shape: N_sl × N_sl
+    units: dimensionless
+
+  - name: q_sb
+    description: Fitting exponent for shear banding flow rule
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: p_tr
+    description: Fitting parameter for transformation probability
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: L_tr
+    description: Characteristic length of transformation nucleus
+    type: float
+    shape: scalar
+    units: m
+
+  - name: i_tr
+    description: Fitting parameter for transformation mean free path
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: Q_s
+    description: Activation energy for stacking fault formation
+    type: float
+    shape: scalar
+    units: J/mol
+
+  - name: h_0_tw-tw
+    description: Initial hardening modulus for twin–twin interactions
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: sigma_rho_u
+    description: Stress contribution from unipolar dislocation densities
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: short_range_stress_correction
+    description: Correction factor for short-range stress effects
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: a
+    description: Attempt frequency pre-factor or activation rate constant
+    type: float
+    shape: scalar
+    units: Hz
+
+  - name: tau_Peierls_sc
+    description: Peierls stress for screw dislocations
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: T_ref
+    description: Reference temperature
+    type: float
+    shape: scalar
+    units: K
+
+  - name: Gamma_sf,T^2
+    description: Square of the temperature-dependent stacking fault energy
+    type: float
+    shape: scalar
+    units: (J/m^2)^2
+
+  - name: h_inf_xi
+    description: Saturation value of hardening modulus for resistance variable ξ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: rho_significant
+    description: Threshold dislocation density considered significant for activation
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: f_at
+    description: Atomic fraction of solute atoms
+    type: float
+    shape: scalar
+    units: atomic fraction (0–1)
+
+  - name: N_tw
+    description: Number of twinning systems
+    type: int
+    shape: scalar
+    units: count
+
+  - name: h_inf_chi
+    description: Saturation hardening modulus for transformation resistance χ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: D
+    description: Average grain size
+    type: float
+    shape: scalar
+    units: m
+
