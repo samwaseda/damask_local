@@ -383,87 +383,15 @@ def loading_tensor_to_dict(key, value):
     return result
 
 
-# ## Creating the necessary inputs
-
-# In[4]:
-
-
-path = Path("TEST")
-path.mkdir(exist_ok=True)
-
-
-# In[5]:
-
-
-grains = 8
-grids = 16
-
-
-# ## Define workflow
-
-# In[6]:
-
-
-wf = Workflow("DAMASK")
-
-
-# ### Homogenization
-
-# In[7]:
-
-
-wf.homogenization = function_node(get_homogenization, output_labels="result")
-
-
-# ### Elasticity in combination with DFT
-
-# In[8]:
-
-
-# Retrieve data from database
-@Workflow.wrap.as_function_node("elasticity")
 def get_elasticity(key="Hooke_Al"):
     return list_elasticity()[key]
 
 
-# ### Plasticity
-
-# In[9]:
-
-
-@Workflow.wrap.as_function_node("plasticity")
 def get_plasticity(key="phenopowerlaw_Al"):
     return list_plasticity()[key]
 
 
-# ### Phase
 
-# #### Expert user variant: Define all parameters
-# 
-# pyiron allows the user to insert all parameters required by Damask
-
-# In[10]:
-
-
-wf.elasticity = get_elasticity()
-wf.plasticity = get_plasticity()
-wf.phase = function_node(get_phase, composition="Aluminum", elasticity=wf.elasticity, plasticity=wf.plasticity)
-
-
-# ### Rotation
-
-# In[11]:
-
-
-wf.rotation = function_node(get_rotation, shape=grains, output_labels="result")
-
-
-# ### Material
-
-# In[12]:
-
-
-@Workflow.wrap.as_function_node
 def save_material(
     rotation, composition, phase, homogenization, file_name="material.yaml", path=path
 ):
@@ -472,20 +400,6 @@ def save_material(
     return file_name
 
 
-wf.material = save_material(
-    rotation=wf.rotation,
-    composition="Aluminum",
-    phase=wf.phase,
-    homogenization=wf.homogenization,
-)
-
-
-# ### Grid
-
-# In[13]:
-
-
-@Workflow.wrap.as_function_node
 def save_grid(
     box_size, spatial_discretization, num_grains, file_name="damask", path=path
 ):
@@ -498,15 +412,6 @@ def save_grid(
     return file_name
 
 
-wf.grid = save_grid(box_size=1.0e-5, spatial_discretization=grids, num_grains=grains)
-
-
-# ### Loading
-
-# In[14]:
-
-
-@Workflow.wrap.as_function_node
 def save_loading(strain=1.0e-3, file_name="loading.yaml", path=path):
     keys, values = generate_loading_tensor("dot_F")
     values[0, 0] = strain
@@ -521,13 +426,6 @@ def save_loading(strain=1.0e-3, file_name="loading.yaml", path=path):
     return file_name
 
 
-wf.loading = save_loading()
-
-
-# In[15]:
-
-
-@Workflow.wrap.as_function_node
 def run_damask(material, loading, grid):
     command = f"DAMASK_grid -m {material} -l {loading} -g {grid}.vti".split()
     import subprocess
@@ -539,26 +437,14 @@ def run_damask(material, loading, grid):
     return process, stdout, stderr
 
 
-wf.exec = run_damask(wf.material, wf.loading, wf.grid)
-
-
-# ## Post-processing
-
-# In[16]:
-
-
 def average(d):
     return np.average(list(d.values()), axis=1)
 
 
-# In[17]:
-
-
-@Workflow.wrap.as_function_node("file_name")
 def get_hdf_file_name(material, loading, grid):
     return "{}_{}_{}.hdf5".format(grid, loading.split(".")[0], material.split(".")[0])
 
-@Workflow.wrap.as_function_node("stress", "strain", "stress_von_Mises", "strain_von_Mises")
+
 def get_results(file_name, path=path):
     results = Result(path / file_name)
     results.add_stress_Cauchy()
@@ -570,37 +456,3 @@ def get_results(file_name, path=path):
     stress_von_Mises = average(results.get("sigma_vM"))
     strain_von_Mises = average(results.get("epsilon_V^0.0(F)_vM"))
     return stress, strain, stress_von_Mises, strain_von_Mises
-
-
-# In[18]:
-
-
-wf.file_name = get_hdf_file_name(wf.material, wf.loading, wf.grid)
-wf.results = get_results(wf.file_name)
-
-
-# In[19]:
-
-
-wf.run()
-
-
-# In[20]:
-
-
-plt.xlabel("Strain")
-plt.ylabel("Stress")
-plt.plot(wf.results.outputs.strain_von_Mises.value, wf.results.outputs.stress_von_Mises.value)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-

@@ -1,3 +1,4 @@
+name: damask-test
 channels:
   - conda-forge
 dependencies:

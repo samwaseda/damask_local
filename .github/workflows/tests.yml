@@ -16,10 +16,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-version: latest
-        environment-file: ../damask_local/.ci_support/environment.yml
+        activate-environment: damask-test
+        channel-priority: strict
+        environment-file: .ci_support/environment.yml
         python-version: ${{ matrix.python-version }}
 
     - name: run tests
