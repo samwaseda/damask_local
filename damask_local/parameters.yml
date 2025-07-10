@@ -1,0 +1,482 @@
+parameters:
+  - name: Delta_G,T
+    description: Gibbs free energy change associated with transformation
+    type: float
+    shape: scalar
+    units: J/m^3
+
+  - name: tau_sb
+    description: Critical resolved shear stress for shear banding
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: h_0
+    description: Initial hardening modulus
+    type: float
+    shape: scalar
+    units: MPa or GPa (context-dependent)
+
+  - name: f_ed_mult
+    description: Multiplicative factor for edge dislocation contribution
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: type
+    description: Identifier for the type of deformation mechanism (e.g., slip, twinning, transformation)
+    type: str
+    shape: scalar
+    units: none
+
+  - name: t_tr
+    description: Average thickness of transformation martensite
+    type: float
+    shape: scalar
+    units: m
+
+  - name: output
+    description: Output flag or control for simulation
+    type: str or bool
+    shape: scalar
+    units: none
+
+  - name: i_sl
+    description: Fitting parameter for slip MFP (mean free path) contribution
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: L_tw
+    description: Twin nucleus width
+    type: float
+    shape: scalar
+    units: m
+
+  - name: h_sl-tw
+    description: Hardening interaction between slip and twinning systems
+    type: float
+    shape: matrix (N_sl × N_tw)
+    units: dimensionless
+
+  - name: d_sc
+    description: Glide plane distance below which two dislocations form a stable configuration
+    type: float
+    shape: scalar
+    units: m
+
+  - name: p_sb
+    description: Probability function parameter for shear banding
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: h_0_xi
+    description: Initial hardening modulus for internal variable ξ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: V_at
+    description: Atomic volume
+    type: float
+    shape: scalar
+    units: m^3
+
+  - name: v_0
+    description: Reference dislocation velocity
+    type: float
+    shape: scalar
+    units: m/s
+
+  - name: dot_gamma_0
+    description: Reference shear rate
+    type: float
+    shape: scalar
+    units: 1/s
+
+  - name: dot_gamma_0_tw
+    description: Reference shear rate for twinning
+    type: float
+    shape: scalar
+    units: 1/s
+
+  - name: a_non-Schmid
+    description: Parameter to account for non-Schmid behavior in twinning or slip
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: h_tw-tw
+    description: Hardening interaction between twinning systems
+    type: float
+    shape: matrix (N_tw × N_tw)
+    units: dimensionless
+
+  - name: f_sol
+    description: Volume fraction of solute atoms
+    type: float
+    shape: scalar
+    units: dimensionless
+
+    parameters:
+  - name: rho_u_ed_pos_0
+    description: Initial positive edge unipolar dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: f_sat_sl-tw
+    description: Saturation factor for slip–twin interaction
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: xi_0
+    description: Initial value of internal resistance variable ξ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: h_0_chi
+    description: Initial hardening modulus for transformation resistance χ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: Delta_G,T^2
+    description: Temperature-dependent Gibbs free energy change squared
+    type: float
+    shape: scalar
+    units: J^2/m^6
+
+  - name: xi_0_sl
+    description: Initial slip resistance variable ξ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: rho_u_sc_neg_0
+    description: Initial negative screw unipolar dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: chi_inf
+    description: Asymptotic transformation resistance
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: c/a_hP
+    description: Lattice parameter ratio for hexagonal close-packed (hcp) crystals
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: p_tw
+    description: Fitting parameter for twin nucleation probability
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: w
+    description: Width parameter in twin nucleation model or stress computation
+    type: float
+    shape: scalar
+    units: m
+
+  - name: chi_surface
+    description: Surface value for transformation resistance variable χ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: rho_d_sc_0
+    description: Initial screw dipole dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: h_sl-tr
+    description: Slip–transformation hardening interaction
+    type: float
+    shape: matrix (N_sl × N_tr)
+    units: dimensionless
+
+  - name: B
+    description: Drag coefficient for dislocation motion
+    type: float
+    shape: scalar
+    units: Pa·s
+
+  - name: Gamma_sf,T
+    description: Temperature-dependent stacking fault energy
+    type: float
+    shape: scalar
+    units: J/m^2
+
+  - name: xi_inf_sl
+    description: Asymptotic value of slip resistance ξ
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: Delta_G
+    description: Gibbs free energy difference between phases
+    type: float
+    shape: scalar
+    units: J/m^3
+
+  - name: tau_Peierls
+    description: Peierls stress for dislocation motion
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: Gamma_sf
+    description: Stacking fault energy
+    type: float
+    shape: scalar
+    units: J/m^2
+
+    parameters:
+  - name: chi_GB
+    description: Transformation resistance at grain boundaries
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: Q_sb
+    description: Activation energy for shear banding
+    type: float
+    shape: scalar
+    units: J/mol
+
+  - name: f_edge
+    description: Fraction of edge dislocations
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: h_0_sl-sl
+    description: Initial slip–slip hardening modulus
+    type: float
+    shape: matrix (N_sl × N_sl)
+    units: dimensionless
+
+  - name: references
+    description: Citations or bibliographic entries for supporting sources
+    type: list
+    shape: variable-length
+    units: none
+
+  - name: tau_Peierls_ed
+    description: Peierls stress for edge dislocations
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: b_tw
+    description: Burgers vector magnitude for twinning systems
+    type: float
+    shape: scalar
+    units: m
+
+  - name: x_c
+    description: Critical partial dislocation spacing for twin nucleation
+    type: float
+    shape: scalar
+    units: m
+
+  - name: M
+    description: Mobility of dislocations
+    type: float
+    shape: scalar
+    units: m^2/(Ns)
+
+  - name: n_tw
+    description: Rate sensitivity exponent for twinning
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: Q_cl
+    description: Activation energy for dislocation climb
+    type: float
+    shape: scalar
+    units: J/mol
+
+  - name: t_tw
+    description: Twin thickness
+    type: float
+    shape: scalar
+    units: m
+
+  - name: xi_inf
+    description: Asymptotic internal resistance value
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: rho_dip_0
+    description: Initial dislocation dipole density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: i_tw
+    description: Fitting parameter for twin system MFP
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: D_0
+    description: Pre-exponential factor for diffusion coefficient
+    type: float
+    shape: scalar
+    units: m^2/s
+
+  - name: D_a
+    description: Fitting parameter for annihilation distance
+    type: float
+    shape: scalar
+    units: m
+
+  - name: V_mol
+    description: Molar volume
+    type: float
+    shape: scalar
+    units: m^3/mol
+
+  - name: dot_gamma_0_sl
+    description: Reference shear rate for slip
+    type: float
+    shape: scalar
+    units: 1/s
+
+  - name: p_sl
+    description: Fitting parameter for slip system probability function
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: xi_0_tw
+    description: Initial internal resistance on twinning systems
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: c_sol
+    description: Solute concentration
+    type: float
+    shape: scalar
+    units: atomic fraction or wt.%
+
+  - name: Q_sl
+    description: Activation energy for slip
+    type: float
+    shape: scalar
+    units: J/mol
+
+  - name: n
+    description: Strain rate sensitivity exponent
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: h
+    description: Hardening matrix (interaction matrix)
+    type: array
+    shape: system-dependent (e.g. N_sl × N_sl or N_sl × N_tw)
+    units: dimensionless
+
+  - name: tau_0
+    description: Initial critical resolved shear stress
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: d_ed
+    description: Glide plane distance below which edge dislocations form stable dipoles
+    type: float
+    shape: scalar
+    units: m
+
+  - name: rho_u_sc_pos_0
+    description: Initial positive screw unipolar dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
+
+  - name: V_cs
+    description: Cross-slip activation volume
+    type: float
+    shape: scalar
+    units: m^3
+
+  - name: f_F
+    description: Fitting parameter controlling twin growth saturation
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: b_tr
+    description: Burgers vector for transformation systems
+    type: float
+    shape: scalar
+    units: m
+
+  - name: q_sl
+    description: Fitting exponent for dislocation annihilation on slip systems
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: gamma_0_sb
+    description: Reference shear strain rate for shear banding
+    type: float
+    shape: scalar
+    units: 1/s
+
+  - name: n_sl
+    description: Rate sensitivity exponent for slip systems
+    type: float
+    shape: scalar
+    units: dimensionless
+
+  - name: nu_a
+    description: Attempt frequency for atomic jumps
+    type: float
+    shape: scalar
+    units: Hz
+
+  - name: b_sl
+    description: Burgers vector for slip systems
+    type: float
+    shape: scalar
+    units: m
+
+  - name: dilatation
+    description: Dilatational strain rate or expansion term in plasticity model
+    type: float
+    shape: scalar
+    units: 1/s or dimensionless (model-dependent)
+
+  - name: h_tw-sl
+    description: Twinning–slip hardening interaction term
+    type: array
+    shape: N_tw × N_sl
+    units: dimensionless
+
+  - name: h_0_tw-sl
+    description: Initial hardening modulus for twin–slip interactions
+    type: float
+    shape: scalar
+    units: MPa
+
+  - name: rho_mob_0
+    description: Initial mobile dislocation density
+    type: float
+    shape: scalar
+    units: m^-2
