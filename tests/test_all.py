@@ -3,8 +3,7 @@ import unittest
 
 class TestFull(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def test_run(self):
         pass
 
 
