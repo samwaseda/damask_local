@@ -1,0 +1,112 @@
+- name: Hooke_Ag
+  composition: {"Ag": 100}
+
+- name: Hooke_Al
+  composition: {"Al": 100}
+
+- name: Hooke_Au
+  composition: {"Au": 100}
+
+- name: Hooke_C50E-martensite
+
+- name: Hooke_Cu
+  composition: {"Cu": 100}
+
+- name: Hooke_Fe
+  composition: {"Fe": 100}
+
+- name: Hooke_IN625
+
+- name: Hooke_Mg
+  composition: {"Mg": 100}
+
+- name: Hooke_Nb
+  composition: {"Nb": 100}
+
+- name: Hooke_Ni
+  composition: {"Ni": 100}
+
+- name: Hooke_Pt
+  composition: {"Pt": 100}
+
+- name: Hooke_Si
+  composition: {"Si": 100}
+
+- name: Hooke_SiC-6H
+
+- name: Hooke_Sn-beta
+
+- name: Hooke_TWIP-steel
+
+- name: Hooke_Ta
+  composition: {"Ta": 100}
+
+- name: Hooke_Ti
+  composition: {"Ti": 100}
+
+- name: Hooke_W-10at.%Re
+  composition: {"W": 90, "Re": 10}
+
+- name: Hooke_W-3at.%Re
+  composition: {"W": 97, "Re": 3}
+
+- name: Hooke_W
+  composition: {"W": 100}
+
+- name: Hooke_X2CrNiMo17-12-2
+
+- name: Hooke_X5CrNi18-10
+
+- name: Hooke_X6CrNiMo17-12-2
+
+- name: Hooke_vanishing-Poisson-ratio
+
+- name: dislotungsten_W
+  composition: {"W": 100}
+
+- name: dislotwin_IF-steel
+
+- name: dislotwin_IN625
+
+- name: dislotwin_TWIP-TRIP
+
+- name: dislotwin_alpha-Brass-shearbanding
+
+- name: isotropic_free-surface
+
+- name: kinehardening_X2CrNiMo18-15-4
+
+- name: nonlocal_Al
+
+- name: nonlocal_Ni
+
+- name: phenopowerlaw_AA6022-T4
+
+- name: phenopowerlaw_Al
+  composition: {"Al": 100}
+
+- name: phenopowerlaw_Au
+  composition: {"Au": 100}
+
+- name: phenopowerlaw_Cu
+  composition: {"Cu": 100}
+
+- name: phenopowerlaw_DP-steel-ferrite
+
+- name: phenopowerlaw_IN625
+
+- name: phenopowerlaw_Mg
+  composition: {"Mg": 100}
+
+- name: phenopowerlaw_Pt-5%Cu
+  composition: {"Pt": 95, "Cu": 5}
+
+- name: phenopowerlaw_Sn-beta
+
+- name: phenopowerlaw_Ti
+  composition: {"Ti": 100}
+
+- name: phenopowerlaw_bcc-martensite
+
+- name: phenopowerlaw_polygonal-ferrite
+
