@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 from pathlib import Path
 
-from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds
+from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
 
 
@@ -117,9 +117,8 @@ def get_phase(
     https://doi.org/10.1016/j.scriptamat.2017.09.047
     """
     if lattice is None:
-        lattice = {"BCC": "cI", "HEX": "hP", "FCC": "cF"}[
-            get_atom_info(name=composition)["lattice_structure"]
-        ]
+        lattice = get_atom_info(name=composition)["lattice_structure"]
+    lattice = {"BCC": "cI", "HEX": "hP", "FCC": "cF"}.get(lattice.upper(), lattice)
     if output_list is None:
         if plasticity is None:
             output_list = ["F", "P", "F_e"]
@@ -398,7 +397,7 @@ def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
     return file_name
 
 
-def run_damask(material, loading, grid):
+def run_damask(material, loading, grid, path):
     command = f"DAMASK_grid -m {material} -l {loading} -g {grid}.vti".split()
     import subprocess
 
