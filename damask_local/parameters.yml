@@ -542,3 +542,122 @@ parameters:
     type: float
     units: m
 
+  - name: C_11
+    description: C_11 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_11,T
+    description: Temperature-dependent C_11 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: C_11,T^2
+    description: Temperature-dependent C_11 component squared of the elastic tensor
+    type: float
+    units: GPa/K^2
+
+  - name: C_11,T^3
+    description: Temperature-dependent C_11 component cubed of the elastic tensor
+    type: float
+    units: GPa/K^3
+
+  - name: C_11,T^4
+    description: Temperature-dependent C_11 component to the fourth power of the elastic tensor
+    type: float
+    units: GPa/K^4
+
+  - name: C_12
+    description: C_12 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_12,T
+    description: Temperature-dependent C_12 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: C_12,T^2
+    description: Temperature-dependent C_12 component squared of the elastic tensor
+    type: float
+    units: GPa/K^2
+
+  - name: C_12,T^3
+    description: Temperature-dependent C_12 component cubed of the elastic tensor
+    type: float
+    units: GPa/K^3
+
+  - name: C_12,T^4
+    description: Temperature-dependent C_12 component to the fourth power of the elastic tensor
+    type: float
+    units: GPa/K^4
+
+  - name: C_13
+    description: C_13 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_13,T
+    description: Temperature-dependent C_13 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: C_13,T^2
+    description: Temperature-dependent C_13 component squared of the elastic tensor
+    type: float
+    units: GPa/K^2
+
+  - name: C_33
+    description: C_33 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_33,T
+    description: Temperature-dependent C_33 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: C_33,T^2
+    description: Temperature-dependent C_33 component squared of the elastic tensor
+    type: float
+    units: GPa/K^2
+
+  - name: C_44
+    description: C_44 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_44,T
+    description: Temperature-dependent C_44 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: C_44,T^2
+    description: Temperature-dependent C_44 component squared of the elastic tensor
+    type: float
+    units: GPa/K^2
+
+  - name: C_44,T^3
+    description: Temperature-dependent C_44 component cubed of the elastic tensor
+    type: float
+    units: GPa/K^3
+
+  - name: C_44,T^4
+    description: Temperature-dependent C_44 component to the fourth power of the elastic tensor
+    type: float
+    units: GPa/K^4
+
+  - name: C_66
+    description: C_66 component of the elastic tensor
+    type: float
+    units: GPa
+
+  - name: C_66,T
+    description: Temperature-dependent C_66 component of the elastic tensor
+    type: float
+    units: GPa/K
+
+  - name: T_ref
+    description: Reference temperature for material properties
+    type: float
+    units: K
