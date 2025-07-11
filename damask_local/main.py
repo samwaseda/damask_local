@@ -1,40 +1,12 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # DAMASK tutorial
-# - creating necessary inputs for damask
-# - runing the damask jobs
-# 
-# here more option is given to the user to select from damask python package itself.
-
-# ## Importing libraries and creating Project
-
-# In[1]:
-
-
-from pyiron_workflow import Workflow, function_node
-
-
-# In[2]:
-
-
-from damask import Result
-from pathlib import Path
-import numpy as np
-import matplotlib.pylab as plt
-
-
-# ## Some helper functions
-
-# In[3]:
-
-
-from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds
-from mendeleev.fetch import fetch_table
 import difflib
 import requests
 import yaml
 import warnings
+import numpy as np
+from pathlib import Path
+
+from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds
+from mendeleev.fetch import fetch_table
 
 
 def list_elasticity(
