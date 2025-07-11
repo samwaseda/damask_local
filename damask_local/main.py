@@ -365,7 +365,7 @@ def get_plasticity(key="phenopowerlaw_Al"):
 
 
 def save_material(
-    rotation, composition, phase, homogenization, file_name="material.yaml", path=path
+    rotation, composition, phase, homogenization, path, file_name="material.yaml"
 ):
     material = generate_material([rotation], [composition], phase, homogenization)
     material.save(path / file_name)
@@ -373,7 +373,7 @@ def save_material(
 
 
 def save_grid(
-    box_size, spatial_discretization, num_grains, file_name="damask", path=path
+    box_size, spatial_discretization, num_grains, path, file_name="damask"
 ):
     grid = generate_grid_from_voronoi_tessellation(
         box_size=box_size,
@@ -384,7 +384,7 @@ def save_grid(
     return file_name
 
 
-def save_loading(strain=1.0e-3, file_name="loading.yaml", path=path):
+def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
     keys, values = generate_loading_tensor("dot_F")
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
@@ -417,7 +417,7 @@ def get_hdf_file_name(material, loading, grid):
     return "{}_{}_{}.hdf5".format(grid, loading.split(".")[0], material.split(".")[0])
 
 
-def get_results(file_name, path=path):
+def get_results(file_name, path):
     results = Result(path / file_name)
     results.add_stress_Cauchy()
     results.add_strain()
