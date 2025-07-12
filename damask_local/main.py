@@ -9,7 +9,37 @@ from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
 
 
+def look_up_name(chemical_composition: list[str], key: str):
+    # define the path to the metadata file relative to this file:
+    path = Path(__file__).parent / "data" / "metadata.yml"
+    with open(path, "r") as file:
+        metadata = yaml.safe_load(file)[key]
+    all_data = [
+        data
+        for data in metadata
+        if all(c in data.get("composition", {}) for c in  chemical_composition)
+    ]
+    if len(all_data) == 0:
+        raise ValueError(
+            f"No data found for the given chemical composition: {chemical_composition}"
+        )
+    elif len(all_data) == 1:
+        return [all_data[0]["name"]]
+
+
+def _order_keys(
+    keys: list[str],
+    composition: list[dict[str, str | float]],
+    selected_elements: list[str],
+) -> list[str]:
+    numbers = []
+    for c in composition:
+        if all(isinstance(c[elem], float | int) for elem in selected_elements):
+            numbers.append(sum([c[elem] for elem in selected_elements]))
+
+
 def list_elasticity(
+    chemical_composition: str | list[str] | None = None,
     sub_folder="elastic",
     repo_owner="damask-multiphysics",
     repo_name="DAMASK",
@@ -30,10 +60,17 @@ def list_elasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    return get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    if chemical_composition is None:
+        return data
+    if isinstance(chemical_composition, str):
+        chemical_composition = [chemical_composition]
+    names = look_up_name(chemical_composition, "elasticity")
+    return {name: data[name] for name in names if name in data}
 
 
 def list_plasticity(
+    chemical_composition: str | list[str] | None = None,
     sub_folder="plastic",
     repo_owner="damask-multiphysics",
     repo_name="DAMASK",
@@ -51,7 +88,13 @@ def list_plasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    return get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    if chemical_composition is None:
+        return data
+    if isinstance(chemical_composition, str):
+        chemical_composition = [chemical_composition]
+    names = look_up_name(chemical_composition, "plasticity")
+    return {name: data[name] for name in names if name in data}
 
 
 def get_yaml(
