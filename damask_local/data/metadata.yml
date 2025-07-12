@@ -1,133 +1,135 @@
-- name: Hooke_Ag
-  composition: {"Ag": 100}
+elasticity:
+  - name: Hooke_Ag
+    composition: {"Ag": 100}
 
-- name: Hooke_Al
-  composition: {"Al": 100}
+  - name: Hooke_Al
+    composition: {"Al": 100}
 
-- name: Hooke_Au
-  composition: {"Au": 100}
+  - name: Hooke_Au
+    composition: {"Au": 100}
 
-- name: Hooke_C50E-martensite
-  composition: {"Fe": 98.0, "C": 0.5, "Mn": 1.0, "Si": 0.2, "Al": 0.3}
+  - name: Hooke_C50E-martensite
+    composition: {"Fe": "balance", "C": 0.5, "Mn": 1.0, "Si": 0.2, "Al": 0.3}
 
-- name: Hooke_Cu
-  composition: {"Cu": 100}
+  - name: Hooke_Cu
+    composition: {"Cu": 100}
 
-- name: Hooke_Fe
-  composition: {"Fe": 100}
+  - name: Hooke_Fe
+    composition: {"Fe": 100}
 
-- name: Hooke_IN625
-  composition: {"Ni": 60, "Cr": 22.0, "Mo": 9.0, "Fe": 5.0, "Nb": 4.0}
+  - name: Hooke_IN625
+    composition: {"Ni": 60, "Cr": 22.0, "Mo": 9.0, "Fe": 5.0, "Nb": 4.0}
 
-- name: Hooke_Mg
-  composition: {"Mg": 100}
+  - name: Hooke_Mg
+    composition: {"Mg": 100}
 
-- name: Hooke_Nb
-  composition: {"Nb": 100}
+  - name: Hooke_Nb
+    composition: {"Nb": 100}
 
-- name: Hooke_Ni
-  composition: {"Ni": 100}
+  - name: Hooke_Ni
+    composition: {"Ni": 100}
 
-- name: Hooke_Pt
-  composition: {"Pt": 100}
+  - name: Hooke_Pt
+    composition: {"Pt": 100}
 
-- name: Hooke_Si
-  composition: {"Si": 100}
+  - name: Hooke_Si
+    composition: {"Si": 100}
 
-- name: Hooke_SiC-6H
-  composition: {"Si": 70.0, "C": 30.0}
+  - name: Hooke_SiC-6H
+    composition: {"Si": 70.0, "C": 30.0}
 
-- name: Hooke_Sn-beta
-  composition: {"Sn": 100}
+  - name: Hooke_Sn-beta
+    composition: {"Sn": 100}
 
-- name: Hooke_TWIP-steel
-  composition: {"Fe": 76.31, "Mn": 22.50, "C": 0.580, "Si": 0.235, "P": 0.022, "S": 0.001, "Cr": 0.070, "Ni": 0.030, "N": 0.026, "Al": 0.002, "Nb": 0.0087, "V": 0.225}
+  - name: Hooke_TWIP-steel
+    composition: {"Fe": 76.31, "Mn": 22.50, "C": 0.580, "Si": 0.235, "P": 0.022, "S": 0.001, "Cr": 0.070, "Ni": 0.030, "N": 0.026, "Al": 0.002, "Nb": 0.0087, "V": 0.225}
 
-- name: Hooke_Ta
-  composition: {"Ta": 100}
+  - name: Hooke_Ta
+    composition: {"Ta": 100}
 
-- name: Hooke_Ti
-  composition: {"Ti": 100}
+  - name: Hooke_Ti
+    composition: {"Ti": 100}
 
-- name: Hooke_W-10at.%Re
-  composition: {"W": 90, "Re": 10}
+  - name: Hooke_W-10at.%Re
+    composition: {"W": 90, "Re": 10}
 
-- name: Hooke_W-3at.%Re
-  composition: {"W": 97, "Re": 3}
+  - name: Hooke_W-3at.%Re
+    composition: {"W": 97, "Re": 3}
 
-- name: Hooke_W
-  composition: {"W": 100}
+  - name: Hooke_W
+    composition: {"W": 100}
 
-- name: Hooke_X2CrNiMo17-12-2
-  composition: {"Fe": 65.575, "Mn": 2.00, "P": 0.045, "S": 0.030, "Si": 0.75, "Cr": 17.0, "Ni": 12.0, "Mo": 2.5, "N": 0.10}
+  - name: Hooke_X2CrNiMo17-12-2
+    composition: {"Fe": "balance", "Mn": 2.00, "P": 0.045, "S": 0.030, "Si": 0.75, "Cr": 17.0, "Ni": 12.0, "Mo": 2.5, "N": 0.10}
 
-- name: Hooke_X5CrNi18-10
-  composition: {"Fe": 71.0, "Cr": 19.0, "Ni": 10.0}
+  - name: Hooke_X5CrNi18-10
+    composition: {"Fe": 71.0, "Cr": 19.0, "Ni": 10.0}
 
-- name: Hooke_X6CrNiMo17-12-2
-  composition: {"Fe": 68.885, "C": 0.04, "Mn": 2.0, "Si": 1.0, "P": 0.045, "S": 0.03, "Cr": 16.0, "Ni": 10.0, "Mo": 2.0}
+  - name: Hooke_X6CrNiMo17-12-2
+    composition: {"Fe": "balance", "C": 0.04, "Mn": 2.0, "Si": 1.0, "P": 0.045, "S": 0.03, "Cr": 16.0, "Ni": 10.0, "Mo": 2.0}
 
-- name: Hooke_vanishing-Poisson-ratio
+  - name: Hooke_vanishing-Poisson-ratio
 
-- name: dislotungsten_W
-  composition: {"W": 100}
+plasticity:
+  - name: dislotungsten_W
+    composition: {"W": 100}
 
-- name: dislotwin_IF-steel
-  composition: {"Fe": 99.78, "C": 0.002, "Mn": 0.095, "S": 0.006, "Ti": 0.045, "N": 0.002, "Al": 0.05, "Cr": 0.02}
+  - name: dislotwin_IF-steel
+    composition: {"Fe": "balance", "C": 0.002, "Mn": 0.095, "S": 0.006, "Ti": 0.045, "N": 0.002, "Al": 0.05, "Cr": 0.02}
 
-- name: dislotwin_IN625
-  composition: {"Ni": 100}
+  - name: dislotwin_IN625
+    composition: {"Ni": 100}
 
-- name: dislotwin_TWIP-TRIP
-  composition: {"Fe": 76.31, "Mn": 22.50, "C": 0.580, "Si": 0.235, "P": 0.022, "S": 0.001, "Cr": 0.070, "Ni": 0.030, "N": 0.026, "Al": 0.002, "Nb": 0.0087, "V": 0.225}
+  - name: dislotwin_TWIP-TRIP
+    composition: {"Fe": 76.31, "Mn": 22.50, "C": 0.580, "Si": 0.235, "P": 0.022, "S": 0.001, "Cr": 0.070, "Ni": 0.030, "N": 0.026, "Al": 0.002, "Nb": 0.0087, "V": 0.225}
 
-- name: dislotwin_alpha-Brass-shearbanding
-  composition: {"Cu": 70.0, "Zn": 30.0}
+  - name: dislotwin_alpha-Brass-shearbanding
+    composition: {"Cu": 70.0, "Zn": 30.0}
 
-- name: isotropic_free-surface
+  - name: isotropic_free-surface
 
-- name: kinehardening_X2CrNiMo18-15-4
-  composition: {"Fe": 62.73, "Cr": 18.25, "Ni": 13.42, "Mo": 3.66, "Mn": 1.48, "Si": 0.44, "C": 0.02}
+  - name: kinehardening_X2CrNiMo18-15-4
+    composition: {"Fe": 62.73, "Cr": 18.25, "Ni": 13.42, "Mo": 3.66, "Mn": 1.48, "Si": 0.44, "C": 0.02}
 
-- name: nonlocal_Al
-  composition: {"Al": 100}
+  - name: nonlocal_Al
+    composition: {"Al": 100}
 
-- name: nonlocal_Ni
-  composition: {"Ni": 100}
+  - name: nonlocal_Ni
+    composition: {"Ni": 100}
 
-- name: phenopowerlaw_AA6022-T4
-  composition: {"Al": 98.264, "Si": 0.90, "Fe": 0.10, "Cu": 0.045, "Mn": 0.053, "Mg": 0.57, "Cr": 0.027, "Zn": 0.016, "Ti": 0.025}
+  - name: phenopowerlaw_AA6022-T4
+    composition: {"Al": "balance", "Si": 0.90, "Fe": 0.10, "Cu": 0.045, "Mn": 0.053, "Mg": 0.57, "Cr": 0.027, "Zn": 0.016, "Ti": 0.025}
 
-- name: phenopowerlaw_Al
-  composition: {"Al": 100}
+  - name: phenopowerlaw_Al
+    composition: {"Al": 100}
 
-- name: phenopowerlaw_Au
-  composition: {"Au": 100}
+  - name: phenopowerlaw_Au
+    composition: {"Au": 100}
 
-- name: phenopowerlaw_Cu
-  composition: {"Cu": 100}
+  - name: phenopowerlaw_Cu
+    composition: {"Cu": 100}
 
-- name: phenopowerlaw_DP-steel-ferrite
-  composition: {"Fe": "unknown", "C": "unknown"}
+  - name: phenopowerlaw_DP-steel-ferrite
+    composition: {"Fe": "balance", "C": "unknown"}
 
-- name: phenopowerlaw_IN625
-  composition: {"Ni": 60, "Cr": 22.0, "Mo": 9.0, "Fe": 5.0, "Nb": 4.0}
+  - name: phenopowerlaw_IN625
+    composition: {"Ni": 60, "Cr": 22.0, "Mo": 9.0, "Fe": 5.0, "Nb": 4.0}
 
-- name: phenopowerlaw_Mg
-  composition: {"Mg": 100}
+  - name: phenopowerlaw_Mg
+    composition: {"Mg": 100}
 
-- name: phenopowerlaw_Pt-5%Cu
-  composition: {"Pt": 95, "Cu": 5}
+  - name: phenopowerlaw_Pt-5%Cu
+    composition: {"Pt": 95, "Cu": 5}
 
-- name: phenopowerlaw_Sn-beta
-  composition: {"Sn": 100}
+  - name: phenopowerlaw_Sn-beta
+    composition: {"Sn": 100}
 
-- name: phenopowerlaw_Ti
-  composition: {"Ti": 100}
+  - name: phenopowerlaw_Ti
+    composition: {"Ti": 100}
 
-- name: phenopowerlaw_bcc-martensite
-  composition: {"Fe": "unknown", "C": "unknown"}
+  - name: phenopowerlaw_bcc-martensite
+    composition: {"Fe": "balance", "C": "unknown"}
 
-- name: phenopowerlaw_polygonal-ferrite
-  composition: {"Fe": "unknown"}
+  - name: phenopowerlaw_polygonal-ferrite
+    composition: {"Fe": "unknown"}
 
