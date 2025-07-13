@@ -17,7 +17,7 @@ def look_up_name(chemical_composition: list[str], key: str):
     all_data = [
         data
         for data in metadata
-        if all(c in data.get("composition", {}) for c in  chemical_composition)
+        if all(c in data.get("composition", {}) for c in chemical_composition)
     ]
     if len(all_data) == 0:
         raise ValueError(
@@ -25,17 +25,32 @@ def look_up_name(chemical_composition: list[str], key: str):
         )
     elif len(all_data) == 1:
         return [all_data[0]["name"]]
+    return [
+        all_data[ii]["name"]
+        for ii in _order_composition(
+            [data["composition"] for data in all_data], chemical_composition
+        )
+    ]
 
 
-def _order_keys(
-    keys: list[str],
+def _order_composition(
     composition: list[dict[str, str | float]],
     selected_elements: list[str],
 ) -> list[str]:
-    numbers = []
-    for c in composition:
-        if all(isinstance(c[elem], float | int) for elem in selected_elements):
-            numbers.append(sum([c[elem] for elem in selected_elements]))
+    all_values = []
+    for comp in composition:
+        value = 0
+        for elem in selected_elements:
+            if comp[elem] == "balance":
+                balance_value = 100
+                for v in comp.values():
+                    if isinstance(v, float | int):
+                        balance_value -= v
+                value += balance_value
+            elif isinstance(comp[elem], float | int):
+                value += comp[elem]
+        all_values.append(value)
+    return np.argsort(all_values).tolist()[::-1]
 
 
 def list_elasticity(
@@ -150,9 +165,7 @@ def get_yaml(
     return yaml_dicts
 
 
-def get_phase(
-    composition, elasticity, plasticity=None, lattice=None, output_list=None
-):
+def get_phase(composition, elasticity, plasticity=None, lattice=None, output_list=None):
     """
     Returns a dictionary describing the phases for damask.
 
@@ -309,9 +322,7 @@ def generate_grid_from_voronoi_tessellation(
     if isinstance(box_size, (int, float)):
         box_size = np.array(3 * [box_size])
     seed = seeds.from_random(box_size, num_grains)
-    return GeomGrid.from_Voronoi_tessellation(
-        spatial_discretization, box_size, seed
-    )
+    return GeomGrid.from_Voronoi_tessellation(spatial_discretization, box_size, seed)
 
 
 def get_loading(solver, load_steps):
@@ -405,7 +416,6 @@ def get_plasticity(key="phenopowerlaw_Al"):
     return list_plasticity()[key]
 
 
-
 def save_material(
     rotation, composition, phase, homogenization, path, file_name="material.yaml"
 ):
@@ -414,9 +424,7 @@ def save_material(
     return file_name
 
 
-def save_grid(
-    box_size, spatial_discretization, num_grains, path, file_name="damask"
-):
+def save_grid(box_size, spatial_discretization, num_grains, path, file_name="damask"):
     grid = generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
