@@ -9,7 +9,52 @@ from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
 
 
+def look_up_name(chemical_composition: list[str], key: str):
+    # define the path to the metadata file relative to this file:
+    path = Path(__file__).parent / "data" / "metadata.yml"
+    with open(path, "r") as file:
+        metadata = yaml.safe_load(file)[key]
+    all_data = [
+        data
+        for data in metadata
+        if all(c in data.get("composition", {}) for c in chemical_composition)
+    ]
+    if len(all_data) == 0:
+        raise ValueError(
+            f"No data found for the given chemical composition: {chemical_composition}"
+        )
+    elif len(all_data) == 1:
+        return [all_data[0]["name"]]
+    return [
+        all_data[ii]["name"]
+        for ii in _order_composition(
+            [data["composition"] for data in all_data], chemical_composition
+        )
+    ]
+
+
+def _order_composition(
+    composition: list[dict[str, str | float]],
+    selected_elements: list[str],
+) -> list[str]:
+    all_values = []
+    for comp in composition:
+        value = 0
+        for elem in selected_elements:
+            if comp[elem] == "balance":
+                balance_value = 100
+                for v in comp.values():
+                    if isinstance(v, float | int):
+                        balance_value -= v
+                value += balance_value
+            elif isinstance(comp[elem], float | int):
+                value += comp[elem]
+        all_values.append(value)
+    return np.argsort(all_values).tolist()[::-1]
+
+
 def list_elasticity(
+    chemical_composition: str | list[str] | None = None,
     sub_folder="elastic",
     repo_owner="damask-multiphysics",
     repo_name="DAMASK",
@@ -30,10 +75,17 @@ def list_elasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    return get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    if chemical_composition is None:
+        return data
+    if isinstance(chemical_composition, str):
+        chemical_composition = [chemical_composition]
+    names = look_up_name(chemical_composition, "elasticity")
+    return {name: data[name] for name in names if name in data}
 
 
 def list_plasticity(
+    chemical_composition: str | list[str] | None = None,
     sub_folder="plastic",
     repo_owner="damask-multiphysics",
     repo_name="DAMASK",
@@ -51,7 +103,13 @@ def list_plasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    return get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    if chemical_composition is None:
+        return data
+    if isinstance(chemical_composition, str):
+        chemical_composition = [chemical_composition]
+    names = look_up_name(chemical_composition, "plasticity")
+    return {name: data[name] for name in names if name in data}
 
 
 def get_yaml(
@@ -107,9 +165,7 @@ def get_yaml(
     return yaml_dicts
 
 
-def get_phase(
-    composition, elasticity, plasticity=None, lattice=None, output_list=None
-):
+def get_phase(composition, elasticity, plasticity=None, lattice=None, output_list=None):
     """
     Returns a dictionary describing the phases for damask.
 
@@ -266,9 +322,7 @@ def generate_grid_from_voronoi_tessellation(
     if isinstance(box_size, (int, float)):
         box_size = np.array(3 * [box_size])
     seed = seeds.from_random(box_size, num_grains)
-    return GeomGrid.from_Voronoi_tessellation(
-        spatial_discretization, box_size, seed
-    )
+    return GeomGrid.from_Voronoi_tessellation(spatial_discretization, box_size, seed)
 
 
 def get_loading(solver, load_steps):
@@ -354,14 +408,6 @@ def loading_tensor_to_dict(key, value):
     return result
 
 
-def get_elasticity(key="Hooke_Al"):
-    return list_elasticity()[key]
-
-
-def get_plasticity(key="phenopowerlaw_Al"):
-    return list_plasticity()[key]
-
-
 
 def save_material(
     rotation, composition, phase, homogenization, path, file_name="material.yaml"
@@ -371,9 +417,7 @@ def save_material(
     return file_name
 
 
-def save_grid(
-    box_size, spatial_discretization, num_grains, path, file_name="damask"
-):
+def save_grid(box_size, spatial_discretization, num_grains, path, file_name="damask"):
     grid = generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
