@@ -408,13 +408,6 @@ def loading_tensor_to_dict(key, value):
     return result
 
 
-def get_elasticity(key="Hooke_Al"):
-    return list_elasticity()[key]
-
-
-def get_plasticity(key="phenopowerlaw_Al"):
-    return list_plasticity()[key]
-
 
 def save_material(
     rotation, composition, phase, homogenization, path, file_name="material.yaml"
