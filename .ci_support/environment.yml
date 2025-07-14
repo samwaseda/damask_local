@@ -3,3 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - damask =3.0.2
+  - requests =2.32.4
