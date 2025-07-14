@@ -4,6 +4,7 @@ import yaml
 import warnings
 import numpy as np
 from pathlib import Path
+from hashlib import sha256
 
 from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
@@ -165,7 +166,13 @@ def get_yaml(
     return yaml_dicts
 
 
-def get_phase(composition, elasticity, plasticity=None, lattice=None, output_list=None):
+def get_phase(
+    elasticity,
+    plasticity=None,
+    chemical_symbol=None,
+    lattice=None,
+    output_list=None,
+):
     """
     Returns a dictionary describing the phases for damask.
 
@@ -173,7 +180,14 @@ def get_phase(composition, elasticity, plasticity=None, lattice=None, output_lis
     https://doi.org/10.1016/j.scriptamat.2017.09.047
     """
     if lattice is None:
-        lattice = get_atom_info(name=composition)["lattice_structure"]
+        if chemical_symbol is None:
+            raise ValueError(
+                "Either 'lattice' or 'chemical_symbol' must be provided."
+            )
+        if len(chemical_symbol) > 2:
+            lattice = get_atom_info(name=chemical_symbol)["lattice_structure"]
+        else:
+            lattice = get_atom_info(symbol=chemical_symbol)["lattice_structure"]
     lattice = {"BCC": "cI", "HEX": "hP", "FCC": "cF"}.get(lattice.upper(), lattice)
     if output_list is None:
         if plasticity is None:
@@ -181,14 +195,12 @@ def get_phase(composition, elasticity, plasticity=None, lattice=None, output_lis
         else:
             output_list = ["F", "P", "F_e", "F_p", "L_p", "O"]
     d = {
-        composition: {
-            "lattice": lattice,
-            "mechanical": {"output": output_list, "elastic": elasticity},
-        }
+        "lattice": lattice,
+        "mechanical": {"output": output_list, "elastic": elasticity},
     }
     if plasticity is not None:
-        d[composition]["mechanical"]["plastic"] = plasticity
-    return d
+        d["mechanical"]["plastic"] = plasticity
+    return {sha256(str(d).encode("utf-8")).hexdigest(): d}
 
 
 def get_atom_info(difflib_cutoff=0.8, **kwargs):
@@ -410,9 +422,9 @@ def loading_tensor_to_dict(key, value):
 
 
 def save_material(
-    rotation, composition, phase, homogenization, path, file_name="material.yaml"
+    rotation, phase, homogenization, path, file_name="material.yaml"
 ):
-    material = generate_material([rotation], [composition], phase, homogenization)
+    material = generate_material([rotation], list(phase.keys()), phase, homogenization)
     material.save(path / file_name)
     return file_name
 
