@@ -3,18 +3,25 @@ import requests
 import yaml
 import warnings
 import numpy as np
-from pathlib import Path
+from functools import cache
 from hashlib import sha256
+from pathlib import Path
 
 from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
 
 
-def look_up_name(chemical_composition: list[str], key: str):
+@cache
+def get_metadata(key):
     # define the path to the metadata file relative to this file:
     path = Path(__file__).parent / "data" / "metadata.yml"
     with open(path, "r") as file:
         metadata = yaml.safe_load(file)[key]
+    return metadata
+
+
+def look_up_name(chemical_composition: list[str], key: str):
+    metadata = get_metadata(key)
     all_data = [
         data
         for data in metadata
@@ -54,6 +61,7 @@ def _order_composition(
     return np.argsort(all_values).tolist()[::-1]
 
 
+@cache
 def list_elasticity(
     chemical_composition: str | list[str] | None = None,
     sub_folder="elastic",
@@ -85,6 +93,7 @@ def list_elasticity(
     return {name: data[name] for name in names if name in data}
 
 
+@cache
 def list_plasticity(
     chemical_composition: str | list[str] | None = None,
     sub_folder="plastic",
@@ -166,6 +175,27 @@ def get_yaml(
     return yaml_dicts
 
 
+def _get_lattice_structure(key=None, lattice=None, chemical_symbol=None):
+    if key is None and lattice is None and chemical_symbol is None:
+        raise ValueError(
+            "At least one of 'key', 'lattice', or 'chemical_symbol' must be provided."
+        )
+    if lattice is None and key is not None:
+        for k in get_metadata("elasticity"):
+            if k["name"] == key:
+                lattice = k.get("lattice_structure", None)
+                break
+    if lattice is None:
+        if len(chemical_symbol) > 2:
+            lattice = get_atom_info(name=chemical_symbol)["lattice_structure"]
+        else:
+            lattice = get_atom_info(symbol=chemical_symbol)["lattice_structure"]
+    lattice = {
+        "BCC": "cI", "HEX": "hP", "FCC": "cF", "BCT": "tI", "DIA": "cF"
+    }.get(lattice.upper(), lattice)
+    return lattice
+
+
 def get_phase(
     elasticity,
     plasticity=None,
@@ -179,23 +209,22 @@ def get_phase(
     For the details of isotropic model, one can refer to:
     https://doi.org/10.1016/j.scriptamat.2017.09.047
     """
-    if lattice is None:
-        if chemical_symbol is None:
-            raise ValueError(
-                "Either 'lattice' or 'chemical_symbol' must be provided."
-            )
-        if len(chemical_symbol) > 2:
-            lattice = get_atom_info(name=chemical_symbol)["lattice_structure"]
-        else:
-            lattice = get_atom_info(symbol=chemical_symbol)["lattice_structure"]
-    lattice = {"BCC": "cI", "HEX": "hP", "FCC": "cF"}.get(lattice.upper(), lattice)
+    key = None
+    if "type" not in elasticity:
+        for k, v in elasticity.items():
+            key = k
+            elasticity = v
+            break
+    if plasticity is not None and "type" not in plasticity:
+        plasticity = list(plasticity.values())[0]
+    assert "type" in elasticity, "Problem with the elasticity format"
     if output_list is None:
         if plasticity is None:
             output_list = ["F", "P", "F_e"]
         else:
             output_list = ["F", "P", "F_e", "F_p", "L_p", "O"]
     d = {
-        "lattice": lattice,
+        "lattice": _get_lattice_structure(key, lattice, chemical_symbol),
         "mechanical": {"output": output_list, "elastic": elasticity},
     }
     if plasticity is not None:
