@@ -525,7 +525,7 @@ def get_grid(num_grains, box_size=use_default(1.0e-5), spatial_discretization=us
 
 @with_explicit_defaults
 def apply_tensile_strain(strain=use_default(1.0e-3), default=use_default("dot_F")):
-    keys, values = generate_loading_tensor("dot_F")
+    keys, values = generate_loading_tensor(default)
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
     data = loading_tensor_to_dict(keys, values)
