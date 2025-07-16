@@ -1,5 +1,6 @@
 import difflib
 import requests
+import subprocess
 import yaml
 import warnings
 import numpy as np
@@ -444,23 +445,16 @@ def loading_tensor_to_dict(key, value):
 
 
 
-def save_material(
-    rotation, phase, homogenization, path, file_name="material.yaml"
-):
-    material = generate_material([rotation], list(phase.keys()), phase, homogenization)
-    material.save(path / file_name)
-    return file_name
+def get_material(rotation, phase, homogenization):
+    return generate_material([rotation], list(phase.keys()), phase, homogenization)
 
 
-def save_grid(box_size, spatial_discretization, num_grains, path, file_name="damask"):
-    grid = generate_grid_from_voronoi_tessellation(
+def get_grid(box_size, spatial_discretization, num_grains):
+    return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
         num_grains=num_grains,
     )
-    grid.save(path / file_name)
-    return file_name
-
 
 def apply_tensile_strain(strain=1.0e-3, default="dot_F"):
     keys, values = generate_loading_tensor("dot_F")
@@ -485,26 +479,30 @@ def save_loading(loading, path, file_name="loading.yaml"):
     return file_name
 
 
-def run_damask(material, loading, grid, path):
-    command = f"DAMASK_grid -m {material} -l {loading} -g {grid}.vti".split()
-    import subprocess
+def run_damask(material, loading, grid, path=None):
+    if path is None:
+        path = Path(
+            "damask_" + sha256(f"{material}_{loading}_{grid}".encode("utf-8")).hexdigest()
+        )
+    path = Path(path)
+    path.mkdir(exist_ok=True)
+    material.save(path / "material.yaml")
+    loading.save(path / "loading.yaml")
+    grid.save(path / f"damask")
 
+    command = f"DAMASK_grid -m material.yaml -l loading.yaml -g damask.vti".split()
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
     )
     stdout, stderr = process.communicate()
-    return process, stdout, stderr
+    return process, stdout, stderr, path
 
 
 def average(d):
     return np.average(list(d.values()), axis=1)
 
 
-def get_hdf_file_name(material, loading, grid):
-    return "{}_{}_{}.hdf5".format(grid, loading.split(".")[0], material.split(".")[0])
-
-
-def get_results(file_name, path):
+def get_results(path, file_name="damask_loading_material.hdf5"):
     results = Result(path / file_name)
     results.add_stress_Cauchy()
     results.add_strain()
