@@ -1,14 +1,76 @@
 import difflib
+import inspect
 import requests
+import subprocess
 import yaml
 import warnings
 import numpy as np
-from functools import cache
+from functools import cache, wraps
 from hashlib import sha256
 from pathlib import Path
 
 from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
 from mendeleev.fetch import fetch_table
+
+
+# Sentinel wrapper
+class ExplicitDefault:
+    def __init__(self, default, msg=None):
+        self.default = default
+        self.msg = msg
+
+
+def use_default(default, msg=None):
+    return ExplicitDefault(default, msg)
+
+
+# Decorator
+def with_explicit_defaults(func):
+    sig = inspect.signature(func)
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        bound = sig.bind_partial(*args, **kwargs)
+        bound.apply_defaults()
+
+        # Track updated arguments
+        new_args = list(args)
+        new_kwargs = dict(kwargs)
+
+        for name, param in sig.parameters.items():
+            default_val = param.default
+
+            if not isinstance(default_val, ExplicitDefault):
+                continue  # Only handle sentinel-wrapped defaults
+
+            # Determine if argument was passed
+            was_explicit = (
+                name in bound.arguments
+                and name in kwargs
+                or (
+                    param.kind in [param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD]
+                    and list(sig.parameters).index(name) < len(args)
+                )
+            )
+
+            if not was_explicit:
+                # Not passed: Replace sentinel with real default
+                if default_val.msg:
+                    warnings.warn(default_val.msg)
+                else:
+                    warnings.warn(f"'{name}' not provided, using default: {default_val.default}")
+                if param.kind in [param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD]:
+                    idx = list(sig.parameters).index(name)
+                    if idx < len(new_args):
+                        new_args[idx] = default_val.default
+                    else:
+                        new_kwargs[name] = default_val.default
+                else:
+                    new_kwargs[name] = default_val.default
+
+        return func(*new_args, **new_kwargs)
+
+    return wrapper
 
 
 @cache
@@ -190,9 +252,9 @@ def _get_lattice_structure(key=None, lattice=None, chemical_symbol=None):
             lattice = get_atom_info(name=chemical_symbol)["lattice_structure"]
         else:
             lattice = get_atom_info(symbol=chemical_symbol)["lattice_structure"]
-    lattice = {
-        "BCC": "cI", "HEX": "hP", "FCC": "cF", "BCT": "tI", "DIA": "cF"
-    }.get(lattice.upper(), lattice)
+    lattice = {"BCC": "cI", "HEX": "hP", "FCC": "cF", "BCT": "tI", "DIA": "cF"}.get(
+        lattice.upper(), lattice
+    )
     return lattice
 
 
@@ -263,13 +325,16 @@ def get_tag(tag, arr, cutoff=0.8):
     return results[0]
 
 
-def get_rotation(method="from_random", shape=None):
+@with_explicit_defaults
+def get_rotation(method="from_random", shape=use_default(8)):
     """
     Args:
         method (damask.Rotation.*/str): Method of damask.Rotation class which
             based on the given arguments creates the Rotation object. If
             string is given, it looks for the method within `damask.Rotation`
             via `getattr`.
+        shape (int): Shape of the rotation matrix. If `method` is `from_random`,
+            it defines the number of random rotations to be created.
 
     Returns:
         damask.Rotation: A Rotation object
@@ -366,12 +431,6 @@ def generate_grid_from_voronoi_tessellation(
     return GeomGrid.from_Voronoi_tessellation(spatial_discretization, box_size, seed)
 
 
-def get_loading(solver, load_steps):
-    if not isinstance(load_steps, list):
-        load_steps = [load_steps]
-    return YAML(solver=solver, loadstep=load_steps)
-
-
 def get_homogenization(method=None, parameters=None):
     """
     Returns damask homogenization as a dictionary.
@@ -449,27 +508,24 @@ def loading_tensor_to_dict(key, value):
     return result
 
 
-
-def save_material(
-    rotation, phase, homogenization, path, file_name="material.yaml"
-):
-    material = generate_material([rotation], list(phase.keys()), phase, homogenization)
-    material.save(path / file_name)
-    return file_name
+def get_material(rotation, phase, homogenization):
+    if not isinstance(rotation, (list, tuple, np.ndarray)):
+        rotation = [rotation]
+    return generate_material(rotation, list(phase.keys()), phase, homogenization)
 
 
-def save_grid(box_size, spatial_discretization, num_grains, path, file_name="damask"):
-    grid = generate_grid_from_voronoi_tessellation(
+@with_explicit_defaults
+def get_grid(num_grains, box_size=use_default(1.0e-5), spatial_discretization=use_default(16)):
+    return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
         num_grains=num_grains,
     )
-    grid.save(path / file_name)
-    return file_name
 
 
-def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
-    keys, values = generate_loading_tensor("dot_F")
+@with_explicit_defaults
+def apply_tensile_strain(strain=use_default(1.0e-3), default=use_default("dot_F")):
+    keys, values = generate_loading_tensor(default)
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
     data = loading_tensor_to_dict(keys, values)
@@ -477,31 +533,45 @@ def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
         generate_load_step(N=40, t=10, f_out=4, **data),
         generate_load_step(N=20, t=20, f_out=4, **data),
     ]
-    loading = get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
+    return get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
+
+
+def get_loading(solver, load_steps):
+    if not isinstance(load_steps, list):
+        load_steps = [load_steps]
+    return YAML(solver=solver, loadstep=load_steps)
+
+
+def save_loading(loading, path, file_name="loading.yaml"):
     loading.save(path / file_name)
     return file_name
 
 
-def run_damask(material, loading, grid, path):
-    command = f"DAMASK_grid -m {material} -l {loading} -g {grid}.vti".split()
-    import subprocess
+def run_damask(material, loading, grid, path=None):
+    if path is None:
+        path = Path(
+            "damask_"
+            + sha256(f"{material}_{loading}_{grid}".encode("utf-8")).hexdigest()
+        )
+    path = Path(path)
+    path.mkdir(exist_ok=True)
+    material.save(path / "material.yaml")
+    loading.save(path / "loading.yaml")
+    grid.save(path / f"damask")
 
+    command = f"DAMASK_grid -m material.yaml -l loading.yaml -g damask.vti".split()
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
     )
     stdout, stderr = process.communicate()
-    return process, stdout, stderr
+    return process, stdout, stderr, path
 
 
 def average(d):
     return np.average(list(d.values()), axis=1)
 
 
-def get_hdf_file_name(material, loading, grid):
-    return "{}_{}_{}.hdf5".format(grid, loading.split(".")[0], material.split(".")[0])
-
-
-def get_results(file_name, path):
+def get_results(path, file_name="damask_loading_material.hdf5"):
     results = Result(path / file_name)
     results.add_stress_Cauchy()
     results.add_strain()
