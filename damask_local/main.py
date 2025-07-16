@@ -264,13 +264,15 @@ def get_tag(tag, arr, cutoff=0.8):
     return results[0]
 
 
-def get_rotation(method="from_random", shape=None):
+def get_rotation(method="from_random", shape=8):
     """
     Args:
         method (damask.Rotation.*/str): Method of damask.Rotation class which
             based on the given arguments creates the Rotation object. If
             string is given, it looks for the method within `damask.Rotation`
             via `getattr`.
+        shape (int): Shape of the rotation matrix. If `method` is `from_random`,
+            it defines the number of random rotations to be created.
 
     Returns:
         damask.Rotation: A Rotation object
@@ -446,10 +448,12 @@ def loading_tensor_to_dict(key, value):
 
 
 def get_material(rotation, phase, homogenization):
-    return generate_material([rotation], list(phase.keys()), phase, homogenization)
+    if not isinstance(rotation, (list, tuple, np.ndarray)):
+        rotation = [rotation]
+    return generate_material(rotation, list(phase.keys()), phase, homogenization)
 
 
-def get_grid(box_size, spatial_discretization, num_grains):
+def get_grid(num_grains, box_size=1.0e-5, spatial_discretization=16):
     return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
