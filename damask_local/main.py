@@ -366,12 +366,6 @@ def generate_grid_from_voronoi_tessellation(
     return GeomGrid.from_Voronoi_tessellation(spatial_discretization, box_size, seed)
 
 
-def get_loading(solver, load_steps):
-    if not isinstance(load_steps, list):
-        load_steps = [load_steps]
-    return YAML(solver=solver, loadstep=load_steps)
-
-
 def get_homogenization(method=None, parameters=None):
     """
     Returns damask homogenization as a dictionary.
@@ -478,6 +472,12 @@ def apply_tensile_strain(strain=1.0e-3, default="dot_F"):
         generate_load_step(N=20, t=20, f_out=4, **data),
     ]
     return get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
+
+
+def get_loading(solver, load_steps):
+    if not isinstance(load_steps, list):
+        load_steps = [load_steps]
+    return YAML(solver=solver, loadstep=load_steps)
 
 
 def save_loading(loading, path, file_name="loading.yaml"):
