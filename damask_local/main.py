@@ -468,7 +468,7 @@ def save_grid(box_size, spatial_discretization, num_grains, path, file_name="dam
     return file_name
 
 
-def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
+def apply_tensile_strain(strain=1.0e-3, default="dot_F"):
     keys, values = generate_loading_tensor("dot_F")
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
@@ -477,7 +477,10 @@ def save_loading(path, strain=1.0e-3, file_name="loading.yaml"):
         generate_load_step(N=40, t=10, f_out=4, **data),
         generate_load_step(N=20, t=20, f_out=4, **data),
     ]
-    loading = get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
+    return get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
+
+
+def save_loading(loading, path, file_name="loading.yaml"):
     loading.save(path / file_name)
     return file_name
 
