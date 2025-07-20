@@ -7,6 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: psf/black@stable
+      with:
+        options: "--check --diff"
+        src: ./${{ github.event.repository.name }}
+
+
   build:
     strategy:
       matrix:
