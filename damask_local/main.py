@@ -58,7 +58,9 @@ def with_explicit_defaults(func):
                 if default_val.msg:
                     warnings.warn(default_val.msg)
                 else:
-                    warnings.warn(f"'{name}' not provided, using default: {default_val.default}")
+                    warnings.warn(
+                        f"'{name}' not provided, using default: {default_val.default}"
+                    )
                 if param.kind in [param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD]:
                     idx = list(sig.parameters).index(name)
                     if idx < len(new_args):
@@ -515,7 +517,9 @@ def get_material(rotation, phase, homogenization):
 
 
 @with_explicit_defaults
-def get_grid(num_grains, box_size=use_default(1.0e-5), spatial_discretization=use_default(16)):
+def get_grid(
+    num_grains, box_size=use_default(1.0e-5), spatial_discretization=use_default(16)
+):
     return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
