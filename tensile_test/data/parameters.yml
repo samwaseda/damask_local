@@ -7,12 +7,12 @@ parameters:
   - name: tau_sb
     description: Critical resolved shear stress for shear banding
     type: float
-    units: MPa
+    units: Pa
 
   - name: h_0
     description: Initial hardening modulus
     type: float
-    units: MPa or GPa (context-dependent)
+    units: Pa
 
   - name: f_ed_mult
     description: Multiplicative factor for edge dislocation contribution
@@ -63,7 +63,7 @@ parameters:
   - name: h_0_xi
     description: Initial hardening modulus for internal variable ξ
     type: float
-    units: MPa
+    units: Pa
 
   - name: V_at
     description: Atomic volume
@@ -114,12 +114,12 @@ parameters:
   - name: xi_0
     description: Initial value of internal resistance variable ξ
     type: float
-    units: MPa
+    units: Pa
 
   - name: h_0_chi
     description: Initial hardening modulus for transformation resistance χ
     type: float
-    units: MPa
+    units: Pa
 
   - name: Delta_G,T^2
     description: Temperature-dependent Gibbs free energy change squared
@@ -129,7 +129,7 @@ parameters:
   - name: xi_0_sl
     description: Initial slip resistance variable ξ
     type: float
-    units: MPa
+    units: Pa
 
   - name: rho_u_sc_neg_0
     description: Initial negative screw unipolar dislocation density
@@ -139,7 +139,7 @@ parameters:
   - name: chi_inf
     description: Asymptotic transformation resistance
     type: float
-    units: MPa
+    units: Pa
 
   - name: c/a_hP
     description: Lattice parameter ratio for hexagonal close-packed (hcp) crystals
@@ -159,7 +159,7 @@ parameters:
   - name: chi_surface
     description: Surface value for transformation resistance variable χ
     type: float
-    units: MPa
+    units: Pa
 
   - name: rho_d_sc_0
     description: Initial screw dipole dislocation density
@@ -175,7 +175,7 @@ parameters:
   - name: B
     description: Drag coefficient for dislocation motion
     type: float
-    units: Pa·s
+    units: Pa*s
 
   - name: Gamma_sf,T
     description: Temperature-dependent stacking fault energy
@@ -185,7 +185,7 @@ parameters:
   - name: xi_inf_sl
     description: Asymptotic value of slip resistance ξ
     type: float
-    units: MPa
+    units: Pa
 
   - name: Delta_G
     description: Gibbs free energy difference between phases
@@ -195,7 +195,7 @@ parameters:
   - name: tau_Peierls
     description: Peierls stress for dislocation motion
     type: float
-    units: MPa
+    units: Pa
 
   - name: Gamma_sf
     description: Stacking fault energy
@@ -205,7 +205,7 @@ parameters:
   - name: chi_GB
     description: Transformation resistance at grain boundaries
     type: float
-    units: MPa
+    units: Pa
 
   - name: Q_sb
     description: Activation energy for shear banding
@@ -218,7 +218,7 @@ parameters:
     units: dimensionless
 
   - name: h_0_sl-sl
-    description: Initial slip–slip hardening modulus
+    description: Stress increment per strain, i.e. initial slope of the stress-strain-curve
     type: list[list[float]]
     shape: N_sl × N_sl
     units: dimensionless
@@ -226,7 +226,7 @@ parameters:
   - name: tau_Peierls_ed
     description: Peierls stress for edge dislocations
     type: float
-    units: MPa
+    units: Pa
 
   - name: b_tw
     description: Burgers vector magnitude for twinning systems
@@ -261,7 +261,7 @@ parameters:
   - name: xi_inf
     description: Asymptotic internal resistance value
     type: float
-    units: MPa
+    units: Pa
 
   - name: rho_dip_0
     description: Initial dislocation dipole density
@@ -301,7 +301,7 @@ parameters:
   - name: xi_0_tw
     description: Initial internal resistance on twinning systems
     type: float
-    units: MPa
+    units: Pa
 
   - name: c_sol
     description: Solute concentration
@@ -327,7 +327,7 @@ parameters:
   - name: tau_0
     description: Initial critical resolved shear stress
     type: float
-    units: MPa
+    units: Pa
 
   - name: d_ed
     description: Glide plane distance below which edge dislocations form stable dipoles
@@ -365,7 +365,7 @@ parameters:
     units: 1/s
 
   - name: n_sl
-    description: Rate sensitivity exponent for slip systems
+    description: Stress exponent (inverse rate senistivity)
     type: float
     units: dimensionless
 
@@ -393,7 +393,7 @@ parameters:
   - name: h_0_tw-sl
     description: Initial hardening modulus for twin–slip interactions
     type: float
-    units: MPa
+    units: Pa
 
   - name: rho_mob_0
     description: Initial mobile dislocation density
@@ -406,9 +406,9 @@ parameters:
     units: dimensionless
 
   - name: a_sl
-    description: Dislocation annihilation distance scaling for slip systems
+    description: Hardening exponent
     type: float
-    units: m
+    units: dimesionless
 
   - name: omega
     description: Energy barrier scaling factor for twinning or transformation
@@ -480,12 +480,12 @@ parameters:
   - name: h_0_tw-tw
     description: Initial hardening modulus for twin–twin interactions
     type: float
-    units: MPa
+    units: Pa
 
   - name: sigma_rho_u
     description: Stress contribution from unipolar dislocation densities
     type: float
-    units: MPa
+    units: Pa
 
   - name: short_range_stress_correction
     description: Correction factor for short-range stress effects
@@ -500,7 +500,7 @@ parameters:
   - name: tau_Peierls_sc
     description: Peierls stress for screw dislocations
     type: float
-    units: MPa
+    units: Pa
 
   - name: T_ref
     description: Reference temperature
@@ -515,7 +515,7 @@ parameters:
   - name: h_inf_xi
     description: Saturation value of hardening modulus for resistance variable ξ
     type: float
-    units: MPa
+    units: Pa
 
   - name: rho_significant
     description: Threshold dislocation density considered significant for activation
@@ -535,7 +535,7 @@ parameters:
   - name: h_inf_chi
     description: Saturation hardening modulus for transformation resistance χ
     type: float
-    units: MPa
+    units: Pa
 
   - name: D
     description: Average grain size
@@ -545,117 +545,117 @@ parameters:
   - name: C_11
     description: C_11 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_11,T
     description: Temperature-dependent C_11 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: C_11,T^2
     description: Temperature-dependent C_11 component squared of the elastic tensor
     type: float
-    units: GPa/K^2
+    units: Pa/K^2
 
   - name: C_11,T^3
     description: Temperature-dependent C_11 component cubed of the elastic tensor
     type: float
-    units: GPa/K^3
+    units: Pa/K^3
 
   - name: C_11,T^4
     description: Temperature-dependent C_11 component to the fourth power of the elastic tensor
     type: float
-    units: GPa/K^4
+    units: Pa/K^4
 
   - name: C_12
     description: C_12 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_12,T
     description: Temperature-dependent C_12 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: C_12,T^2
     description: Temperature-dependent C_12 component squared of the elastic tensor
     type: float
-    units: GPa/K^2
+    units: Pa/K^2
 
   - name: C_12,T^3
     description: Temperature-dependent C_12 component cubed of the elastic tensor
     type: float
-    units: GPa/K^3
+    units: Pa/K^3
 
   - name: C_12,T^4
     description: Temperature-dependent C_12 component to the fourth power of the elastic tensor
     type: float
-    units: GPa/K^4
+    units: Pa/K^4
 
   - name: C_13
     description: C_13 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_13,T
     description: Temperature-dependent C_13 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: C_13,T^2
     description: Temperature-dependent C_13 component squared of the elastic tensor
     type: float
-    units: GPa/K^2
+    units: Pa/K^2
 
   - name: C_33
     description: C_33 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_33,T
     description: Temperature-dependent C_33 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: C_33,T^2
     description: Temperature-dependent C_33 component squared of the elastic tensor
     type: float
-    units: GPa/K^2
+    units: Pa/K^2
 
   - name: C_44
     description: C_44 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_44,T
     description: Temperature-dependent C_44 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: C_44,T^2
     description: Temperature-dependent C_44 component squared of the elastic tensor
     type: float
-    units: GPa/K^2
+    units: Pa/K^2
 
   - name: C_44,T^3
     description: Temperature-dependent C_44 component cubed of the elastic tensor
     type: float
-    units: GPa/K^3
+    units: Pa/K^3
 
   - name: C_44,T^4
     description: Temperature-dependent C_44 component to the fourth power of the elastic tensor
     type: float
-    units: GPa/K^4
+    units: Pa/K^4
 
   - name: C_66
     description: C_66 component of the elastic tensor
     type: float
-    units: GPa
+    units: Pa
 
   - name: C_66,T
     description: Temperature-dependent C_66 component of the elastic tensor
     type: float
-    units: GPa/K
+    units: Pa/K
 
   - name: T_ref
     description: Reference temperature for material properties
