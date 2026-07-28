@@ -548,6 +548,43 @@ def get_results(
 
 
 @fr.workflow
+def prepare_material(
+    element: str,
+    shape: int = 8,
+):
+    elasticity = list_elasticity(element)
+    plasticity = list_plasticity(element)
+    phase = get_phase(elasticity=elasticity, plasticity=plasticity)
+    rotation = get_rotation(shape=shape)
+    homogenization = get_homogenization()
+    material = get_material(
+        rotation=rotation,
+        phase=phase,
+        homogenization=homogenization,
+    )
+    return material
+
+
+@fr.workflow
+def preprocess(
+    element: str,
+    strain: float = 1.0e-3,
+    loading_type: str = "dot_F",
+    shape: int = 8,
+    box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
+    spatial_discretization=16,
+):
+    material = prepare_material(element=element, shape=shape)
+    grid = get_grid(
+        num_grains=shape,
+        box_size=box_size,
+        spatial_discretization=spatial_discretization,
+    )
+    loading = apply_tensile_strain(strain=strain, loading_type=loading_type)
+    return material, grid, loading
+
+
+@fr.workflow
 def run_tensile_test(
     element: str,
     strain: float = 1.0e-3,
@@ -556,19 +593,11 @@ def run_tensile_test(
     box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
     spatial_discretization=16,
 ):
-    elasticity = list_elasticity(element)
-    plasticity = list_plasticity(element)
-    phase = get_phase(elasticity=elasticity, plasticity=plasticity)
-    rotation = get_rotation(shape=shape)
-    loading = apply_tensile_strain(strain=strain, loading_type=loading_type)
-    homogenization = get_homogenization()
-    material = get_material(
-        rotation=rotation,
-        phase=phase,
-        homogenization=homogenization,
-    )
-    grid = get_grid(
-        num_grains=shape,
+    material, grid, loading = preprocess(
+        element=element,
+        strain=strain,
+        loading_type=loading_type,
+        shape=shape,
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
