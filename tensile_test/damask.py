@@ -253,7 +253,9 @@ def get_tag(tag: str, arr: list[str], cutoff: float = 0.8) -> str:
     return results[0]
 
 
-def get_rotation(shape: int, method: str | Callable[..., Rotation] = "from_random") -> Rotation:
+def get_rotation(
+    shape: int, method: str | Callable[..., Rotation] = "from_random"
+) -> Rotation:
     """
     Args:
         shape (int): Shape of the rotation matrix. If `method` is `from_random`,
@@ -501,8 +503,7 @@ def run_damask(
 ) -> tuple[subprocess.Popen, str, str, Path]:
     if path is None:
         path = Path(
-            "damask_"
-            + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
+            "damask_" + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
         )
     path = Path(path)
     path.mkdir(exist_ok=True)
@@ -510,7 +511,15 @@ def run_damask(
     loading.save(path / "loading.yaml")
     grid.save(path / "damask")
 
-    command = ["DAMASK_grid", "-m", "material.yaml", "-l", "loading.yaml", "-g", "damask.vti"]
+    command = [
+        "DAMASK_grid",
+        "-m",
+        "material.yaml",
+        "-l",
+        "loading.yaml",
+        "-g",
+        "damask.vti",
+    ]
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
     )
