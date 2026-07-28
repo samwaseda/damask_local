@@ -1,9 +1,6 @@
 import difflib
-import requests
 import subprocess
-import yaml
 import warnings
-import numpy as np
 from functools import cache
 from hashlib import sha256
 from pathlib import Path
@@ -11,7 +8,10 @@ from typing import Annotated
 
 import ase
 import flowrep as fr
-from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
+import numpy as np
+import requests
+import yaml
+from damask import YAML, ConfigMaterial, GeomGrid, Result, Rotation, seeds
 
 
 @cache
@@ -220,7 +220,7 @@ def get_phase(
             elasticity = v
             break
     if plasticity is not None and "type" not in plasticity:
-        plasticity = list(plasticity.values())[0]
+        plasticity = next(iter(plasticity.values()))
     assert "type" in elasticity, "Problem with the elasticity format"
     if output_list is None:
         if plasticity is None:
@@ -277,7 +277,7 @@ def generate_material(rotation, elements, phase, homogenization):
         elements = [elements]
     for r, e in zip(rotation, elements):
         _config = _config.material_add(
-            O=r, phase=e, homogenization=list(homogenization.keys())[0]
+            O=r, phase=e, homogenization=next(iter(homogenization.keys()))
         )
     return _config
 
@@ -474,7 +474,7 @@ def run_damask(material, loading, grid, path=None):
     if path is None:
         path = Path(
             "damask_"
-            + sha256(f"{material}_{loading}_{grid}".encode("utf-8")).hexdigest()
+            + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
         )
     path = Path(path)
     path.mkdir(exist_ok=True)
@@ -482,7 +482,7 @@ def run_damask(material, loading, grid, path=None):
     loading.save(path / "loading.yaml")
     grid.save(path / "damask")
 
-    command = "DAMASK_grid -m material.yaml -l loading.yaml -g damask.vti".split()
+    command = ["DAMASK_grid", "-m", "material.yaml", "-l", "loading.yaml", "-g", "damask.vti"]
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
     )
@@ -532,7 +532,7 @@ def run_tensile_test(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
-    process, stdout, stderr, path = run_damask(
+    _process, _stdout, _stderr, path = run_damask(
         material=material, loading=loading, grid=grid
     )
     stress, strain, stress_von_Mises, strain_von_Mises = get_results(path=path)
