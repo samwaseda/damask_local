@@ -295,7 +295,7 @@ def generate_material(
 
 def generate_load_step(
     N: int,
-    t: float,
+    t: Annotated[float, {"units": "second"}],
     F: np.ndarray | None = None,
     dot_F: np.ndarray | None = None,
     P: np.ndarray | None = None,
@@ -357,7 +357,7 @@ def generate_load_step(
 def generate_grid_from_voronoi_tessellation(
     spatial_discretization: int | float | np.ndarray,
     num_grains: int,
-    box_size: float | np.ndarray,
+    box_size: Annotated[float | np.ndarray, {"units": "meter"}]
 ) -> GeomGrid:
     if isinstance(spatial_discretization, (int, float)):
         spatial_discretization = np.array(3 * [spatial_discretization])
@@ -459,7 +459,7 @@ def get_material(
 
 def get_grid(
     num_grains: int,
-    box_size: float | np.ndarray,
+    box_size: Annotated[float | np.ndarray, {"units": "meter"}],
     spatial_discretization: int | float | np.ndarray,
 ) -> GeomGrid:
     return generate_grid_from_voronoi_tessellation(
