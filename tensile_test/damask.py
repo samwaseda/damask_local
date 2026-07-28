@@ -469,9 +469,9 @@ def get_grid(
     )
 
 
-def apply_tensile_strain(strain: float, loading_type: str) -> YAML:
+def apply_tensile_strain(strain_rate: float, loading_type: str = "dot_F") -> YAML:
     keys, values = generate_loading_tensor(loading_type)
-    values[0, 0] = strain
+    values[0, 0] = strain_rate
     keys[1, 1] = keys[2, 2] = "P"
     data = loading_tensor_to_dict(keys, values)
     load_step = [
@@ -568,8 +568,7 @@ def prepare_material(
 @fr.workflow
 def preprocess(
     element: str,
-    strain: float = 1.0e-3,
-    loading_type: str = "dot_F",
+    strain_rate: Annotated[float, {"units": "1/s"}] = 1.0e-3,
     shape: int = 8,
     box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
     spatial_discretization=16,
@@ -580,23 +579,21 @@ def preprocess(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
-    loading = apply_tensile_strain(strain=strain, loading_type=loading_type)
+    loading = apply_tensile_strain(strain_rate=strain_rate)
     return material, grid, loading
 
 
 @fr.workflow
 def run_tensile_test(
     element: str,
-    strain: float = 1.0e-3,
-    loading_type: str = "dot_F",
+    strain_rate: Annotated[float, {"units": "1/s"}] = 1.0e-3,
     shape: int = 8,
     box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
     spatial_discretization=16,
 ):
     material, grid, loading = preprocess(
         element=element,
-        strain=strain,
-        loading_type=loading_type,
+        strain_rate=strain_rate,
         shape=shape,
         box_size=box_size,
         spatial_discretization=spatial_discretization,
