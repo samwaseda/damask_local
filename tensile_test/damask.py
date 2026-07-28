@@ -7,10 +7,11 @@ import numpy as np
 from functools import cache
 from hashlib import sha256
 from pathlib import Path
+from typing import Annotated
 
 import ase
+import flowrep as fr
 from damask import YAML, ConfigMaterial, Rotation, GeomGrid, seeds, Result
-from tensile_test.tools import with_explicit_defaults, use_default
 
 
 @cache
@@ -248,16 +249,15 @@ def get_tag(tag, arr, cutoff=0.8):
     return results[0]
 
 
-@with_explicit_defaults
-def get_rotation(method="from_random", shape=use_default(8)):
+def get_rotation(shape, method="from_random"):
     """
     Args:
+        shape (int): Shape of the rotation matrix. If `method` is `from_random`,
+            it defines the number of random rotations to be created.
         method (damask.Rotation.*/str): Method of damask.Rotation class which
             based on the given arguments creates the Rotation object. If
             string is given, it looks for the method within `damask.Rotation`
             via `getattr`.
-        shape (int): Shape of the rotation matrix. If `method` is `from_random`,
-            it defines the number of random rotations to be created.
 
     Returns:
         damask.Rotation: A Rotation object
@@ -368,23 +368,23 @@ def get_homogenization(method=None, parameters=None):
     return {method: parameters}
 
 
-def generate_loading_tensor(default="F"):
+def generate_loading_tensor(loading_type="F"):
     """
     Returns the default boundary conditions for the damask loading tensor.
 
     Args:
-        default (str): Default value of the tensor. It can be 'F', 'P', 'dot_F'
+        loading_type (str): Default value of the tensor. It can be 'F', 'P', 'dot_F'
             or 'dot_P'.
 
     Returns:
         tuple: A tuple of two numpy arrays. The first array is the keys and the
             second array is the values.
     """
-    assert default in ["F", "P", "dot_F", "dot_P"]
-    if default == "F":
+    assert loading_type in ["F", "P", "dot_F", "dot_P"]
+    if loading_type == "F":
         return np.full((3, 3), "F").astype("<U5"), np.eye(3)
     else:
-        return np.full((3, 3), default).astype("<U5"), np.zeros((3, 3))
+        return np.full((3, 3), loading_type).astype("<U5"), np.zeros((3, 3))
 
 
 def loading_tensor_to_dict(key, value):
@@ -437,9 +437,8 @@ def get_material(rotation, phase, homogenization):
     return generate_material(rotation, list(phase.keys()), phase, homogenization)
 
 
-@with_explicit_defaults
 def get_grid(
-    num_grains, box_size=use_default(1.0e-5), spatial_discretization=use_default(16)
+    num_grains, box_size, spatial_discretization
 ):
     return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
@@ -448,9 +447,8 @@ def get_grid(
     )
 
 
-@with_explicit_defaults
-def apply_tensile_strain(strain=use_default(1.0e-3), default=use_default("dot_F")):
-    keys, values = generate_loading_tensor(default)
+def apply_tensile_strain(strain, loading_type):
+    keys, values = generate_loading_tensor(loading_type)
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
     data = loading_tensor_to_dict(keys, values)
@@ -506,4 +504,36 @@ def get_results(path, file_name="damask_loading_material.hdf5"):
     strain = average(results.get("epsilon_V^0.0(F)"))
     stress_von_Mises = average(results.get("sigma_vM"))
     strain_von_Mises = average(results.get("epsilon_V^0.0(F)_vM"))
+    return stress, strain, stress_von_Mises, strain_von_Mises
+
+
+@fr.workflow
+def run_tensile_test(
+    element: str,
+    strain: float = 1.0e-3,
+    loading_type: str = "dot_F",
+    shape: int = 8,
+    box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
+    spatial_discretization=16,
+):
+    elasticity = list_elasticity(element)
+    plasticity = list_plasticity(element)
+    phase = get_phase(elasticity=elasticity, plasticity=plasticity)
+    rotation = get_rotation(shape=shape)
+    loading = apply_tensile_strain(strain=strain, loading_type=loading_type)
+    homogenization = get_homogenization()
+    material = get_material(
+        rotation=rotation,
+        phase=phase,
+        homogenization=homogenization,
+    )
+    grid = get_grid(
+        num_grains=shape,
+        box_size=box_size,
+        spatial_discretization=spatial_discretization,
+    )
+    process, stdout, stderr, path = run_damask(
+        material=material, loading=loading, grid=grid
+    )
+    stress, strain, stress_von_Mises, strain_von_Mises = get_results(path=path)
     return stress, strain, stress_von_Mises, strain_von_Mises
