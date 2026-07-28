@@ -4,7 +4,7 @@ import warnings
 from functools import cache
 from hashlib import sha256
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any, Callable
 
 import ase
 import flowrep as fr
@@ -15,7 +15,7 @@ from damask import YAML, ConfigMaterial, GeomGrid, Result, Rotation, seeds
 
 
 @cache
-def get_metadata(key):
+def get_metadata(key: str) -> Any:
     # define the path to the metadata file relative to this file:
     path = Path(__file__).parent / "data" / "metadata.yml"
     with open(path, "r") as file:
@@ -23,7 +23,7 @@ def get_metadata(key):
     return metadata
 
 
-def look_up_name(chemical_composition: list[str], key: str):
+def look_up_name(chemical_composition: list[str], key: str) -> list[str]:
     metadata = get_metadata(key)
     all_data = [
         data
@@ -47,7 +47,7 @@ def look_up_name(chemical_composition: list[str], key: str):
 def _order_composition(
     composition: list[dict[str, str | float]],
     selected_elements: list[str],
-) -> list[str]:
+) -> list[int]:
     all_values = []
     for comp in composition:
         value = 0
@@ -67,11 +67,11 @@ def _order_composition(
 @cache
 def list_elasticity(
     chemical_composition: str | list[str] | None = None,
-    sub_folder="elastic",
-    repo_owner="damask-multiphysics",
-    repo_name="DAMASK",
-    directory_path="examples/config/phase/mechanical",
-):
+    sub_folder: str = "elastic",
+    repo_owner: str = "damask-multiphysics",
+    repo_name: str = "DAMASK",
+    directory_path: str = "examples/config/phase/mechanical",
+) -> dict[str, Any]:
     """
     Fetches all the elasticity YAML files in the specified directory from the
     specified GitHub repository.
@@ -99,11 +99,11 @@ def list_elasticity(
 @cache
 def list_plasticity(
     chemical_composition: str | list[str] | None = None,
-    sub_folder="plastic",
-    repo_owner="damask-multiphysics",
-    repo_name="DAMASK",
-    directory_path="examples/config/phase/mechanical",
-):
+    sub_folder: str = "plastic",
+    repo_owner: str = "damask-multiphysics",
+    repo_name: str = "DAMASK",
+    directory_path: str = "examples/config/phase/mechanical",
+) -> dict[str, Any]:
     """
     Fetches all the plasticity YAML files in the specified directory from the specified GitHub repository.
 
@@ -126,11 +126,11 @@ def list_plasticity(
 
 
 def get_yaml(
-    sub_folder="",
-    repo_owner="damask-multiphysics",
-    repo_name="DAMASK",
-    directory_path="examples/config/phase/mechanical",
-):
+    sub_folder: str = "",
+    repo_owner: str = "damask-multiphysics",
+    repo_name: str = "DAMASK",
+    directory_path: str = "examples/config/phase/mechanical",
+) -> dict[str, Any]:
     """
     Fetches all the YAML files in the specified directory from the specified GitHub repository.
 
@@ -178,7 +178,11 @@ def get_yaml(
     return yaml_dicts
 
 
-def _get_lattice_structure(key=None, lattice=None, chemical_symbol=None):
+def _get_lattice_structure(
+    key: str | None = None,
+    lattice: str | None = None,
+    chemical_symbol: str | None = None,
+) -> str | None:
     if key is None and lattice is None and chemical_symbol is None:
         raise ValueError(
             "At least one of 'key', 'lattice', or 'chemical_symbol' must be provided."
@@ -201,12 +205,12 @@ def _get_lattice_structure(key=None, lattice=None, chemical_symbol=None):
 
 
 def get_phase(
-    elasticity,
-    plasticity=None,
-    chemical_symbol=None,
-    lattice=None,
-    output_list=None,
-):
+    elasticity: dict[str, Any],
+    plasticity: dict[str, Any] | None = None,
+    chemical_symbol: str | None = None,
+    lattice: str | None = None,
+    output_list: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Returns a dictionary describing the phases for damask.
 
@@ -236,20 +240,22 @@ def get_phase(
     return {sha256(str(d).encode("utf-8")).hexdigest(): d}
 
 
-def ase_default_structure(symbol):
+def ase_default_structure(symbol: str) -> str | None:
     Z = ase.data.chemical_symbols.index(symbol)
     ref = ase.data.reference_states[Z]
     return None if ref is None else ref["symmetry"]
 
 
-def get_tag(tag, arr, cutoff=0.8):
+def get_tag(tag: str, arr: list[str], cutoff: float = 0.8) -> str:
     results = difflib.get_close_matches(tag, arr, cutoff=cutoff)
     if len(results) == 0:
         raise KeyError(f"'{tag}' not found")
     return results[0]
 
 
-def get_rotation(shape, method="from_random"):
+def get_rotation(
+    shape: int, method: str | Callable[..., Rotation] = "from_random"
+) -> Rotation:
     """
     Args:
         shape (int): Shape of the rotation matrix. If `method` is `from_random`,
@@ -267,7 +273,12 @@ def get_rotation(shape, method="from_random"):
     return method(shape=shape)
 
 
-def generate_material(rotation, elements, phase, homogenization):
+def generate_material(
+    rotation: Rotation | list[Rotation] | np.ndarray,
+    elements: list[str] | str,
+    phase: dict[str, Any],
+    homogenization: dict[str, Any],
+) -> ConfigMaterial:
     _config = ConfigMaterial(
         {"material": [], "phase": phase, "homogenization": homogenization}
     )
@@ -283,17 +294,17 @@ def generate_material(rotation, elements, phase, homogenization):
 
 
 def generate_load_step(
-    N,
-    t,
-    F=None,
-    dot_F=None,
-    P=None,
-    dot_P=None,
-    f_out=None,
-    r=None,
-    f_restart=None,
-    estimate_rate=None,
-):
+    N: int,
+    t: float,
+    F: np.ndarray | None = None,
+    dot_F: np.ndarray | None = None,
+    P: np.ndarray | None = None,
+    dot_P: np.ndarray | None = None,
+    f_out: int | None = None,
+    r: float | None = None,
+    f_restart: int | None = None,
+    estimate_rate: float | None = None,
+) -> dict[str, Any]:
     """
     Args:
         N (int): Number of increments
@@ -344,8 +355,10 @@ def generate_load_step(
 
 
 def generate_grid_from_voronoi_tessellation(
-    spatial_discretization, num_grains, box_size
-):
+    spatial_discretization: int | float | np.ndarray,
+    num_grains: int,
+    box_size: float | np.ndarray,
+) -> GeomGrid:
     if isinstance(spatial_discretization, (int, float)):
         spatial_discretization = np.array(3 * [spatial_discretization])
     if isinstance(box_size, (int, float)):
@@ -354,7 +367,10 @@ def generate_grid_from_voronoi_tessellation(
     return GeomGrid.from_Voronoi_tessellation(spatial_discretization, box_size, seed)
 
 
-def get_homogenization(method=None, parameters=None):
+def get_homogenization(
+    method: str | None = None,
+    parameters: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Returns damask homogenization as a dictionary.
     Args:
@@ -368,7 +384,7 @@ def get_homogenization(method=None, parameters=None):
     return {method: parameters}
 
 
-def generate_loading_tensor(loading_type="F"):
+def generate_loading_tensor(loading_type: str = "F") -> tuple[np.ndarray, np.ndarray]:
     """
     Returns the default boundary conditions for the damask loading tensor.
 
@@ -387,7 +403,7 @@ def generate_loading_tensor(loading_type="F"):
         return np.full((3, 3), loading_type).astype("<U5"), np.zeros((3, 3))
 
 
-def loading_tensor_to_dict(key, value):
+def loading_tensor_to_dict(key: np.ndarray, value: np.ndarray) -> dict[str, Any]:
     """
     Converts the damask loading tensor to a dictionary.
 
@@ -431,15 +447,21 @@ def loading_tensor_to_dict(key, value):
     return result
 
 
-def get_material(rotation, phase, homogenization):
+def get_material(
+    rotation: Rotation | list[Rotation] | np.ndarray,
+    phase: dict[str, Any],
+    homogenization: dict[str, Any],
+) -> ConfigMaterial:
     if not isinstance(rotation, (list, tuple, np.ndarray)):
         rotation = [rotation]
     return generate_material(rotation, list(phase.keys()), phase, homogenization)
 
 
 def get_grid(
-    num_grains, box_size, spatial_discretization
-):
+    num_grains: int,
+    box_size: float | np.ndarray,
+    spatial_discretization: int | float | np.ndarray,
+) -> GeomGrid:
     return generate_grid_from_voronoi_tessellation(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
@@ -447,7 +469,7 @@ def get_grid(
     )
 
 
-def apply_tensile_strain(strain, loading_type):
+def apply_tensile_strain(strain: float, loading_type: str) -> YAML:
     keys, values = generate_loading_tensor(loading_type)
     values[0, 0] = strain
     keys[1, 1] = keys[2, 2] = "P"
@@ -459,22 +481,29 @@ def apply_tensile_strain(strain, loading_type):
     return get_loading(solver={"mechanical": "spectral_basic"}, load_steps=load_step)
 
 
-def get_loading(solver, load_steps):
+def get_loading(
+    solver: dict[str, Any],
+    load_steps: dict[str, Any] | list[dict[str, Any]],
+) -> YAML:
     if not isinstance(load_steps, list):
         load_steps = [load_steps]
     return YAML(solver=solver, loadstep=load_steps)
 
 
-def save_loading(loading, path, file_name="loading.yaml"):
+def save_loading(loading: YAML, path: Path, file_name: str = "loading.yaml") -> str:
     loading.save(path / file_name)
     return file_name
 
 
-def run_damask(material, loading, grid, path=None):
+def run_damask(
+    material: ConfigMaterial,
+    loading: YAML,
+    grid: GeomGrid,
+    path: Path | str | None = None,
+) -> tuple[subprocess.Popen, str, str, Path]:
     if path is None:
         path = Path(
-            "damask_"
-            + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
+            "damask_" + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
         )
     path = Path(path)
     path.mkdir(exist_ok=True)
@@ -482,7 +511,15 @@ def run_damask(material, loading, grid, path=None):
     loading.save(path / "loading.yaml")
     grid.save(path / "damask")
 
-    command = ["DAMASK_grid", "-m", "material.yaml", "-l", "loading.yaml", "-g", "damask.vti"]
+    command = [
+        "DAMASK_grid",
+        "-m",
+        "material.yaml",
+        "-l",
+        "loading.yaml",
+        "-g",
+        "damask.vti",
+    ]
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
     )
@@ -490,11 +527,14 @@ def run_damask(material, loading, grid, path=None):
     return process, stdout, stderr, path
 
 
-def average(d):
+def average(d: dict[str, np.ndarray]) -> np.ndarray:
     return np.average(list(d.values()), axis=1)
 
 
-def get_results(path, file_name="damask_loading_material.hdf5"):
+def get_results(
+    path: Path,
+    file_name: str = "damask_loading_material.hdf5",
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     results = Result(path / file_name)
     results.add_stress_Cauchy()
     results.add_strain()
