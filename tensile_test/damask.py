@@ -1,5 +1,6 @@
 import difflib
 import subprocess
+import rdflib
 import warnings
 from functools import cache
 from hashlib import sha256
@@ -12,6 +13,19 @@ import numpy as np
 import requests
 import yaml
 from damask import YAML, ConfigMaterial, GeomGrid, Result, Rotation, seeds
+
+
+class Namespace:
+    TTO: rdflib.Namespace = rdflib.Namespace("https://w3id.org/pmd/tto/TTO_")
+    PMDCO: rdflib.Namespace = rdflib.Namespace("https://w3id.org/pmd/co/PMD_")
+
+
+class URI:
+    tensile_test_result: rdflib.URIRef = Namespace.TTO["0000008"]
+    strain_rate: rdflib.URIRef = Namespace.TTO["0000051"]
+    stress_rate: rdflib.URIRef = Namespace.TTO["0000052"]
+    tensile_strength: rdflib.URIRef = Namespace.TTO["0000053"]
+    chemical_composition: rdflib.URIRef = Namespace.PMDCO["0000551"]
 
 
 @cache
@@ -254,11 +268,11 @@ def get_tag(tag: str, arr: list[str], cutoff: float = 0.8) -> str:
 
 
 def get_rotation(
-    shape: int, method: str | Callable[..., Rotation] = "from_random"
+    num_grains: int, method: str | Callable[..., Rotation] = "from_random"
 ) -> Rotation:
     """
     Args:
-        shape (int): Shape of the rotation matrix. If `method` is `from_random`,
+        num_grains (int): Shape of the rotation matrix. If `method` is `from_random`,
             it defines the number of random rotations to be created.
         method (damask.Rotation.*/str): Method of damask.Rotation class which
             based on the given arguments creates the Rotation object. If
@@ -270,7 +284,7 @@ def get_rotation(
     """
     if isinstance(method, str):
         method = getattr(Rotation, method)
-    return method(shape=shape)
+    return method(shape=num_grains)
 
 
 def generate_material(
@@ -297,9 +311,9 @@ def generate_load_step(
     N: int,
     t: Annotated[float, {"units": "second"}],
     F: np.ndarray | None = None,
-    dot_F: np.ndarray | None = None,
+    dot_F: Annotated[np.ndarray | None, {"uri": URI.strain_rate}] = None,
     P: np.ndarray | None = None,
-    dot_P: np.ndarray | None = None,
+    dot_P: Annotated[np.ndarray | None, {"units": "Pa/s", "uri": URI.stress_rate}] = None,
     f_out: int | None = None,
     r: float | None = None,
     f_restart: int | None = None,
@@ -547,15 +561,25 @@ def get_results(
     return stress, strain, stress_von_Mises, strain_von_Mises
 
 
+def get_tensile_strength(
+    stress: Annotated[np.ndarray, {"units": "Pa"}],
+) -> Annotated[float, {"units": "Pa", "uri": URI.tensile_strength}]:
+    # Tensile loading is applied along axis 0 in apply_tensile_strain().
+    stress = np.asarray(stress)
+    if stress.ndim < 2:
+        return float(np.max(stress))
+    return float(np.max(stress[..., 0, 0]))
+
+
 @fr.workflow
 def prepare_material(
-    element: str,
-    shape: int = 8,
+    element: Annotated[str, {"uri": URI.chemical_composition}],
+    num_grains: int = 8,
 ):
     elasticity = list_elasticity(element)
     plasticity = list_plasticity(element)
     phase = get_phase(elasticity=elasticity, plasticity=plasticity)
-    rotation = get_rotation(shape=shape)
+    rotation = get_rotation(num_grains=num_grains)
     homogenization = get_homogenization()
     material = get_material(
         rotation=rotation,
@@ -567,15 +591,15 @@ def prepare_material(
 
 @fr.workflow
 def preprocess(
-    element: str,
-    strain_rate: Annotated[float, {"units": "1/s"}] = 1.0e-3,
-    shape: int = 8,
+    element: Annotated[str, {"uri": URI.chemical_composition}],
+    strain_rate: Annotated[float, {"uri": URI.strain_rate}] = 1.0e-3,
+    num_grains: int = 8,
     box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
     spatial_discretization=16,
 ):
-    material = prepare_material(element=element, shape=shape)
+    material = prepare_material(element=element, num_grains=num_grains)
     grid = get_grid(
-        num_grains=shape,
+        num_grains=num_grains,
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
@@ -585,16 +609,16 @@ def preprocess(
 
 @fr.workflow
 def run_tensile_test(
-    element: str,
-    strain_rate: Annotated[float, {"units": "1/s"}] = 1.0e-3,
-    shape: int = 8,
+    element: Annotated[str, {"uri": URI.chemical_composition}],
+    strain_rate: Annotated[float, {"uri": URI.strain_rate}] = 1.0e-3,
+    num_grains: int = 8,
     box_size: Annotated[float, {"units": "meter"}] = 1.0e-5,
     spatial_discretization=16,
-):
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     material, grid, loading = preprocess(
         element=element,
         strain_rate=strain_rate,
-        shape=shape,
+        num_grains=num_grains,
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
