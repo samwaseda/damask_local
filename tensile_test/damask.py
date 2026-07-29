@@ -12,6 +12,7 @@ import flowrep as fr
 import numpy as np
 import requests
 import yaml
+from pyiron_snippets.files import DirectoryObject
 from damask import YAML, ConfigMaterial, GeomGrid, Result, Rotation, seeds
 
 
@@ -514,13 +515,12 @@ def run_damask(
     loading: YAML,
     grid: GeomGrid,
     path: Path | str | None = None,
-) -> tuple[subprocess.Popen, str, str, Path]:
+) -> tuple[subprocess.Popen, str, str, DirectoryObject]:
     if path is None:
         path = Path(
             "damask_" + sha256(f"{material}_{loading}_{grid}".encode()).hexdigest()
         )
-    path = Path(path)
-    path.mkdir(exist_ok=True)
+    do = DirectoryObject(path)
     material.save(path / "material.yaml")
     loading.save(path / "loading.yaml")
     grid.save(path / "damask")
@@ -535,10 +535,10 @@ def run_damask(
         "damask.vti",
     ]
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=path
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=do.path
     )
     stdout, stderr = process.communicate()
-    return process, stdout, stderr, path
+    return process, stdout, stderr, do
 
 
 def average(d: dict[str, np.ndarray]) -> np.ndarray:
@@ -546,10 +546,10 @@ def average(d: dict[str, np.ndarray]) -> np.ndarray:
 
 
 def get_results(
-    path: Path,
+    do: DirectoryObject,
     file_name: str = "damask_loading_material.hdf5",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    results = Result(path / file_name)
+    results = Result(do.path / file_name)
     results.add_stress_Cauchy()
     results.add_strain()
     results.add_equivalent_Mises("sigma")
@@ -622,8 +622,8 @@ def run_tensile_test(
         box_size=box_size,
         spatial_discretization=spatial_discretization,
     )
-    _process, _stdout, _stderr, path = run_damask(
+    _process, _stdout, _stderr, do = run_damask(
         material=material, loading=loading, grid=grid
     )
-    stress, strain, stress_von_Mises, strain_von_Mises = get_results(path=path)
+    stress, strain, stress_von_Mises, strain_von_Mises = get_results(do=do)
     return stress, strain, stress_von_Mises, strain_von_Mises
