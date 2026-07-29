@@ -37,7 +37,7 @@ def get_metadata(key: str) -> Any:
     return metadata
 
 
-def look_up_name(chemical_composition: list[str], key: str) -> list[str]:
+def _look_up_name(chemical_composition: list[str], key: str) -> list[str]:
     metadata = get_metadata(key)
     all_data = [
         data
@@ -106,7 +106,7 @@ def list_elasticity(
         return data
     if isinstance(chemical_composition, str):
         chemical_composition = [chemical_composition]
-    names = look_up_name(chemical_composition, "elasticity")
+    names = _look_up_name(chemical_composition, "elasticity")
     return {name: data[name] for name in names if name in data}
 
 
@@ -135,7 +135,7 @@ def list_plasticity(
         return data
     if isinstance(chemical_composition, str):
         chemical_composition = [chemical_composition]
-    names = look_up_name(chemical_composition, "plasticity")
+    names = _look_up_name(chemical_composition, "plasticity")
     return {name: data[name] for name in names if name in data}
 
 
