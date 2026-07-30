@@ -29,7 +29,7 @@ class URI:
 
 
 @cache
-def get_metadata(key: str) -> Any:
+def _get_metadata(key: str) -> Any:
     # define the path to the metadata file relative to this file:
     path = Path(__file__).parent / "data" / "metadata.yml"
     with open(path, "r") as file:
@@ -38,7 +38,7 @@ def get_metadata(key: str) -> Any:
 
 
 def _look_up_name(chemical_composition: list[str], key: str) -> list[str]:
-    metadata = get_metadata(key)
+    metadata = _get_metadata(key)
     all_data = [
         data
         for data in metadata
@@ -202,7 +202,7 @@ def _get_lattice_structure(
             "At least one of 'key', 'lattice', or 'chemical_symbol' must be provided."
         )
     if lattice is None and key is not None:
-        for k in get_metadata("elasticity"):
+        for k in _get_metadata("elasticity"):
             if k["name"] == key:
                 lattice = k.get("lattice_structure", None)
                 break
