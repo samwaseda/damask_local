@@ -101,7 +101,7 @@ def list_elasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
     if chemical_composition is None:
         return data
     if isinstance(chemical_composition, str):
@@ -130,7 +130,7 @@ def list_plasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
     if chemical_composition is None:
         return data
     if isinstance(chemical_composition, str):
@@ -139,7 +139,7 @@ def list_plasticity(
     return {name: data[name] for name in names if name in data}
 
 
-def get_yaml(
+def _get_yaml(
     sub_folder: str = "",
     repo_owner: str = "damask-multiphysics",
     repo_name: str = "DAMASK",
