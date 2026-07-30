@@ -207,7 +207,7 @@ def _get_lattice_structure(
                 lattice = k.get("lattice_structure", None)
                 break
     if lattice is None:
-        lattice = ase_default_structure(chemical_symbol)
+        lattice = _ase_default_structure(chemical_symbol)
     lattice = {
         "bcc": "cI",
         "hcp": "hP",
@@ -254,7 +254,7 @@ def get_phase(
     return {sha256(str(d).encode("utf-8")).hexdigest(): d}
 
 
-def ase_default_structure(symbol: str) -> str | None:
+def _ase_default_structure(symbol: str) -> str | None:
     Z = ase.data.chemical_symbols.index(symbol)
     ref = ase.data.reference_states[Z]
     return None if ref is None else ref["symmetry"]
