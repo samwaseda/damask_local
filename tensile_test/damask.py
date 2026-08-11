@@ -30,7 +30,7 @@ class URI:
 
 
 @cache
-def get_metadata(key: str) -> Any:
+def _get_metadata(key: str) -> Any:
     # define the path to the metadata file relative to this file:
     path = Path(__file__).parent / "data" / "metadata.yml"
     with open(path, "r") as file:
@@ -39,7 +39,7 @@ def get_metadata(key: str) -> Any:
 
 
 def _look_up_name(chemical_composition: list[str], key: str) -> list[str]:
-    metadata = get_metadata(key)
+    metadata = _get_metadata(key)
     all_data = [
         data
         for data in metadata
@@ -102,7 +102,7 @@ def list_elasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
     if chemical_composition is None:
         return data
     if isinstance(chemical_composition, str):
@@ -131,7 +131,7 @@ def list_plasticity(
     Returns:
         dict: A dictionary containing the YAML content of each file in the directory
     """
-    data = get_yaml(sub_folder, repo_owner, repo_name, directory_path)
+    data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
     if chemical_composition is None:
         return data
     if isinstance(chemical_composition, str):
@@ -140,7 +140,7 @@ def list_plasticity(
     return {name: data[name] for name in names if name in data}
 
 
-def get_yaml(
+def _get_yaml(
     sub_folder: str = "",
     repo_owner: str = "damask-multiphysics",
     repo_name: str = "DAMASK",
@@ -203,12 +203,12 @@ def _get_lattice_structure(
             "At least one of 'key', 'lattice', or 'chemical_symbol' must be provided."
         )
     if lattice is None and key is not None:
-        for k in get_metadata("elasticity"):
+        for k in _get_metadata("elasticity"):
             if k["name"] == key:
                 lattice = k.get("lattice_structure", None)
                 break
     if lattice is None:
-        lattice = ase_default_structure(chemical_symbol)
+        lattice = _ase_default_structure(chemical_symbol)
     lattice = {
         "bcc": "cI",
         "hcp": "hP",
@@ -255,7 +255,7 @@ def get_phase(
     return {sha256(str(d).encode("utf-8")).hexdigest(): d}
 
 
-def ase_default_structure(symbol: str) -> str | None:
+def _ase_default_structure(symbol: str) -> str | None:
     Z = ase.data.chemical_symbols.index(symbol)
     ref = ase.data.reference_states[Z]
     return None if ref is None else ref["symmetry"]
