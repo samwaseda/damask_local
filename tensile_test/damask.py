@@ -103,12 +103,12 @@ def list_elasticity(
         dict: A dictionary containing the YAML content of each file in the directory
     """
     data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
-    if chemical_composition is None:
-        return data
-    if isinstance(chemical_composition, str):
-        chemical_composition = [chemical_composition]
-    names = _look_up_name(chemical_composition, "elasticity")
-    return {name: data[name] for name in names if name in data}
+    if chemical_composition is not None:
+        if isinstance(chemical_composition, str):
+            chemical_composition = [chemical_composition]
+        names = _look_up_name(chemical_composition, "elasticity")
+        data = {name: data[name] for name in names if name in data}
+    return data
 
 
 @cache
@@ -132,12 +132,12 @@ def list_plasticity(
         dict: A dictionary containing the YAML content of each file in the directory
     """
     data = _get_yaml(sub_folder, repo_owner, repo_name, directory_path)
-    if chemical_composition is None:
-        return data
-    if isinstance(chemical_composition, str):
-        chemical_composition = [chemical_composition]
-    names = _look_up_name(chemical_composition, "plasticity")
-    return {name: data[name] for name in names if name in data}
+    if chemical_composition is not None:
+        if isinstance(chemical_composition, str):
+            chemical_composition = [chemical_composition]
+        names = _look_up_name(chemical_composition, "plasticity")
+        data = {name: data[name] for name in names if name in data}
+    return data
 
 
 def _get_yaml(
@@ -413,9 +413,10 @@ def generate_loading_tensor(loading_type: str = "F") -> tuple[np.ndarray, np.nda
     """
     assert loading_type in ["F", "P", "dot_F", "dot_P"]
     if loading_type == "F":
-        return np.full((3, 3), "F").astype("<U5"), np.eye(3)
+        loading_tensor = np.full((3, 3), "F").astype("<U5"), np.eye(3)
     else:
-        return np.full((3, 3), loading_type).astype("<U5"), np.zeros((3, 3))
+        loading_tensor = np.full((3, 3), loading_type).astype("<U5"), np.zeros((3, 3))
+    return loading_tensor
 
 
 def loading_tensor_to_dict(key: np.ndarray, value: np.ndarray) -> dict[str, Any]:
@@ -567,8 +568,10 @@ def get_tensile_strength(
     # Tensile loading is applied along axis 0 in apply_tensile_strain().
     stress = np.asarray(stress)
     if stress.ndim < 2:
-        return float(np.max(stress))
-    return float(np.max(stress[..., 0, 0]))
+        tensile_strength = float(np.max(stress))
+    else:
+        tensile_strength = float(np.max(stress[..., 0, 0]))
+    return tensile_strength
 
 
 @fr.workflow
